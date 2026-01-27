@@ -1,30 +1,41 @@
-import { Header } from './components/Header';
-import { HeroSection } from './components/HeroSection';
-import { TimerSection } from './components/TimerSection';
-import { OpenTimeInfo } from './components/OpenTimeInfo';
-import { SocialLoginSection } from './components/SocialLoginSection';
-import { PopularPostSection } from './components/PopularPostSection';
-import { Footer } from './components/Footer';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { ToastProvider } from './components/ui/Toast';
+import { ClosedLanding } from './pages/ClosedLanding';
+import { CommunityMain } from './pages/CommunityMain';
+import { PostDetail } from './pages/PostDetail';
+import { Compose } from './pages/Compose';
+import { Login } from './pages/Login';
+import { MyProfile } from './pages/MyProfile';
+import { NotFound } from './pages/NotFound';
+import { ServerError } from './pages/ServerError';
 
 function App() {
   return (
-    <div className="min-h-screen bg-midnight-bg flex flex-col items-center">
-      <Header />
-      <HeroSection />
-      <TimerSection />
-      <OpenTimeInfo />
-      <SocialLoginSection />
-      
-      {/* Divider */}
-      <div className="w-full h-px bg-midnight-border"></div>
-      
-      <PopularPostSection />
-      
-      {/* Divider */}
-      <div className="w-full h-px bg-midnight-border"></div>
-      
-      <Footer />
-    </div>
+    <BrowserRouter>
+      <ToastProvider>
+        <Routes>
+          {/* Landing (Closed state) */}
+          <Route path="/" element={<ClosedLanding />} />
+          
+          {/* Auth */}
+          <Route path="/login" element={<Login />} />
+          
+          {/* Main Community */}
+          <Route path="/community" element={<CommunityMain />} />
+          
+          {/* Post */}
+          <Route path="/post/:id" element={<PostDetail />} />
+          <Route path="/compose" element={<Compose />} />
+          
+          {/* Profile */}
+          <Route path="/profile" element={<MyProfile />} />
+          
+          {/* Error Pages */}
+          <Route path="/error" element={<ServerError />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </ToastProvider>
+    </BrowserRouter>
   );
 }
 
