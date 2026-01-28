@@ -134,6 +134,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       provider: 'kakao',
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
+        scopes: '',  // 개인정보 수집 안함
       },
     });
     if (error) throw error;

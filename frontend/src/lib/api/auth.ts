@@ -27,6 +27,7 @@ export async function signInWithKakao() {
     provider: 'kakao',
     options: {
       redirectTo: `${window.location.origin}/auth/callback`,
+      scopes: '',  // 개인정보 수집 안함
     },
   });
 
