@@ -3,9 +3,10 @@ import { useState, useRef } from 'react';
 
 interface ImageUploadProps {
   onImageChange?: (file: File | null) => void;
+  disabled?: boolean;
 }
 
-export const ImageUpload = ({ onImageChange }: ImageUploadProps) => {
+export const ImageUpload = ({ onImageChange, disabled }: ImageUploadProps) => {
   const [preview, setPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -62,7 +63,8 @@ export const ImageUpload = ({ onImageChange }: ImageUploadProps) => {
       />
       <button
         onClick={handleClick}
-        className="w-full h-[120px] bg-midnight-bg border border-midnight-border border-dashed rounded-lg flex flex-col items-center justify-center gap-3 hover:border-midnight-text-subtle transition-colors"
+        disabled={disabled}
+        className="w-full h-[120px] bg-midnight-bg border border-midnight-border border-dashed rounded-lg flex flex-col items-center justify-center gap-3 hover:border-midnight-text-subtle transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <ImagePlus className="w-8 h-8 text-midnight-text-dim" />
         <span className="text-midnight-text-subtle text-[13px]">

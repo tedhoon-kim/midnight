@@ -1,9 +1,13 @@
-import { User, CloudMoon, HeartCrack, Megaphone, Ellipsis } from 'lucide-react';
+import { useState } from 'react';
+import { CloudMoon, HeartCrack, Megaphone, Ellipsis } from 'lucide-react';
+import { ImageModal } from '../ui/ImageModal';
+import { Avatar } from '../ui/Avatar';
 
 type TagType = 'monologue' | 'comfort' | 'shout';
 
 interface PostDetailCardProps {
   author: string;
+  authorProfileImage?: string | null;
   time: string;
   tag: TagType;
   content: string;
@@ -19,12 +23,14 @@ const tagConfig = {
 
 export const PostDetailCard = ({
   author,
+  authorProfileImage,
   time,
   tag,
   content,
   imageUrl,
   onMoreClick,
 }: PostDetailCardProps) => {
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const config = tagConfig[tag];
   const TagIcon = config.icon;
 
@@ -34,9 +40,7 @@ export const PostDetailCard = ({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           {/* Avatar */}
-          <div className="w-10 h-10 bg-midnight-border rounded-full flex items-center justify-center">
-            <User className="w-5 h-5 text-midnight-text-subtle" />
-          </div>
+          <Avatar src={authorProfileImage} alt={author} size="md" />
           
           {/* Author Info */}
           <div className="flex flex-col gap-1">
@@ -73,13 +77,25 @@ export const PostDetailCard = ({
 
       {/* Image */}
       {imageUrl && (
-        <div className="w-full rounded-lg overflow-hidden">
+        <div 
+          className="w-full rounded-lg overflow-hidden cursor-pointer"
+          onClick={() => setIsImageModalOpen(true)}
+        >
           <img 
             src={imageUrl} 
             alt="Post image" 
-            className="w-full h-auto max-h-[400px] object-cover"
+            className="w-full h-auto max-h-[400px] object-cover hover:opacity-90 transition-opacity"
           />
         </div>
+      )}
+
+      {/* Image Modal */}
+      {imageUrl && (
+        <ImageModal 
+          imageUrl={imageUrl}
+          isOpen={isImageModalOpen}
+          onClose={() => setIsImageModalOpen(false)}
+        />
       )}
     </article>
   );

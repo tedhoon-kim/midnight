@@ -1,7 +1,51 @@
 import { MessageCircle, Mail, Moon, ArrowLeft } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import { useMidnightAccess } from '../hooks/useMidnightAccess';
+import { Spinner } from '../components/ui/Spinner';
 
 export const Login = () => {
+  const navigate = useNavigate();
+  const { user, isLoading, signInWithKakao, signInWithGoogle } = useAuth();
+  const { isOpen } = useMidnightAccess();
+  const [isSigningIn, setIsSigningIn] = useState(false);
+
+  // 이미 로그인됨 → 커뮤니티로
+  useEffect(() => {
+    if (!isLoading && user && isOpen) {
+      navigate('/community');
+    }
+  }, [user, isLoading, isOpen, navigate]);
+
+  const handleKakaoLogin = async () => {
+    try {
+      setIsSigningIn(true);
+      await signInWithKakao();
+    } catch (error) {
+      console.error('Kakao login error:', error);
+      setIsSigningIn(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      setIsSigningIn(true);
+      await signInWithGoogle();
+    } catch (error) {
+      console.error('Google login error:', error);
+      setIsSigningIn(false);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-midnight-bg flex items-center justify-center">
+        <Spinner size="lg" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-midnight-bg flex flex-col">
       {/* Header with back button */}
@@ -32,19 +76,39 @@ export const Login = () => {
         <div className="w-full max-w-sm bg-midnight-card border border-midnight-border rounded-2xl p-6">
           <div className="flex flex-col gap-3">
             {/* Kakao Login */}
-            <button className="w-full h-12 bg-social-kakao rounded-xl flex items-center justify-center gap-2.5 hover:opacity-90 transition-all duration-200 shadow-sm">
-              <MessageCircle className="w-5 h-5 text-black" />
-              <span className="text-black font-medium text-[15px]">
-                카카오로 시작하기
-              </span>
+            <button 
+              onClick={handleKakaoLogin}
+              disabled={isSigningIn}
+              className="w-full h-12 bg-social-kakao rounded-xl flex items-center justify-center gap-2.5 hover:opacity-90 transition-all duration-200 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSigningIn ? (
+                <Spinner size="sm" />
+              ) : (
+                <>
+                  <MessageCircle className="w-5 h-5 text-black" />
+                  <span className="text-black font-medium text-[15px]">
+                    카카오로 시작하기
+                  </span>
+                </>
+              )}
             </button>
 
             {/* Google Login */}
-            <button className="w-full h-12 bg-social-google border border-gray-200 rounded-xl flex items-center justify-center gap-2.5 hover:bg-gray-50 transition-all duration-200 shadow-sm">
-              <Mail className="w-5 h-5 text-gray-700" />
-              <span className="text-gray-900 font-medium text-[15px]">
-                Google로 시작하기
-              </span>
+            <button 
+              onClick={handleGoogleLogin}
+              disabled={isSigningIn}
+              className="w-full h-12 bg-social-google border border-gray-200 rounded-xl flex items-center justify-center gap-2.5 hover:bg-gray-50 transition-all duration-200 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSigningIn ? (
+                <Spinner size="sm" />
+              ) : (
+                <>
+                  <Mail className="w-5 h-5 text-gray-700" />
+                  <span className="text-gray-900 font-medium text-[15px]">
+                    Google로 시작하기
+                  </span>
+                </>
+              )}
             </button>
           </div>
 
@@ -58,8 +122,11 @@ export const Login = () => {
           {/* Guest mode notice */}
           <p className="text-center text-midnight-text-muted text-sm">
             로그인 없이{' '}
-            <Link to="/community" className="text-indigo-400 hover:underline">
-              둘러보기
+            <Link 
+              to={isOpen ? "/community" : "/"} 
+              className="text-indigo-400 hover:underline"
+            >
+              {isOpen ? '둘러보기' : '메인으로'}
             </Link>
           </p>
         </div>

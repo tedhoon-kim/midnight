@@ -1,0 +1,212 @@
+// Supabase Database Types
+
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[];
+
+export type TagType = 'monologue' | 'comfort' | 'shout';
+
+// 리액션 타입 (6종류)
+export type ReactionType = 'hand-heart' | 'heart' | 'moon' | 'smile' | 'beer' | 'coffee';
+
+// 리액션 타입별 카운트
+export type ReactionsByType = Partial<Record<ReactionType, number>>;
+
+export interface Database {
+  public: {
+    Tables: {
+      users: {
+        Row: {
+          id: string;
+          nickname: string;
+          provider: 'kakao' | 'google';
+          provider_id: string;
+          profile_image_url: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          nickname: string;
+          provider: 'kakao' | 'google';
+          provider_id: string;
+          profile_image_url?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          nickname?: string;
+          provider?: 'kakao' | 'google';
+          provider_id?: string;
+          profile_image_url?: string | null;
+          created_at?: string;
+        };
+      };
+      posts: {
+        Row: {
+          id: string;
+          user_id: string;
+          content: string;
+          tag: TagType;
+          image_url: string | null;
+          created_at: string;
+          expires_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          content: string;
+          tag: TagType;
+          image_url?: string | null;
+          created_at?: string;
+          expires_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          content?: string;
+          tag?: TagType;
+          image_url?: string | null;
+          created_at?: string;
+          expires_at?: string;
+        };
+      };
+      reactions: {
+        Row: {
+          id: string;
+          user_id: string;
+          post_id: string;
+          reaction_type: ReactionType;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          post_id: string;
+          reaction_type?: ReactionType;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          post_id?: string;
+          reaction_type?: ReactionType;
+          created_at?: string;
+        };
+      };
+      comments: {
+        Row: {
+          id: string;
+          user_id: string;
+          post_id: string;
+          content: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          post_id: string;
+          content: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          post_id?: string;
+          content?: string;
+          created_at?: string;
+        };
+      };
+      comment_likes: {
+        Row: {
+          id: string;
+          user_id: string;
+          comment_id: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          comment_id: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          comment_id?: string;
+          created_at?: string;
+        };
+      };
+    };
+    Views: {
+      posts_with_counts: {
+        Row: {
+          id: string;
+          user_id: string;
+          content: string;
+          tag: TagType;
+          image_url: string | null;
+          created_at: string;
+          expires_at: string;
+          author_nickname: string;
+          author_profile_image_url: string | null;
+          reactions_count: number;
+          comments_count: number;
+          reactions_by_type: ReactionsByType | null;
+        };
+      };
+      comments_with_counts: {
+        Row: {
+          id: string;
+          user_id: string;
+          post_id: string;
+          content: string;
+          created_at: string;
+          author_nickname: string;
+          author_profile_image_url: string | null;
+          likes_count: number;
+        };
+      };
+    };
+    Functions: {
+      is_midnight_hours: {
+        Args: Record<string, never>;
+        Returns: boolean;
+      };
+      generate_random_nickname: {
+        Args: Record<string, never>;
+        Returns: string;
+      };
+    };
+    Enums: {
+      [_ in never]: never;
+    };
+  };
+}
+
+// Helper types
+export type User = Database['public']['Tables']['users']['Row'];
+export type Post = Database['public']['Tables']['posts']['Row'];
+export type Reaction = Database['public']['Tables']['reactions']['Row'];
+export type Comment = Database['public']['Tables']['comments']['Row'];
+export type CommentLike = Database['public']['Tables']['comment_likes']['Row'];
+
+// View types
+export type PostWithCountsRow = Database['public']['Views']['posts_with_counts']['Row'];
+export type CommentWithCountsRow = Database['public']['Views']['comments_with_counts']['Row'];
+
+// Extended types with relations
+export interface PostWithDetails extends PostWithCountsRow {
+  user: Pick<User, 'id' | 'nickname' | 'profile_image_url'>;
+  is_reacted?: boolean;
+  // 내가 누른 리액션 타입들
+  my_reactions?: ReactionType[];
+}
+
+export interface CommentWithDetails extends CommentWithCountsRow {
+  user: Pick<User, 'id' | 'nickname' | 'profile_image_url'>;
+  is_liked?: boolean;
+}

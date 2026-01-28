@@ -1,57 +1,8 @@
-import { useEffect, useState } from 'react';
-
-interface TimeLeft {
-  hours: number;
-  minutes: number;
-  seconds: number;
-}
+import { useMidnightAccess, useCountdown } from '../hooks/useMidnightAccess';
 
 export const TimerSection = () => {
-  const [timeLeft, setTimeLeft] = useState<TimeLeft>({
-    hours: 0,
-    minutes: 0,
-    seconds: 0,
-  });
-
-  useEffect(() => {
-    const calculateTimeLeft = (): TimeLeft => {
-      const now = new Date();
-      const currentHour = now.getHours();
-
-      // Midnight opens at 00:00 (midnight) and closes at 04:00 (4 AM)
-      let targetTime: Date;
-
-      if (currentHour >= 4) {
-        // If it's after 4 AM, next opening is at midnight tonight
-        targetTime = new Date(now);
-        targetTime.setDate(targetTime.getDate() + 1);
-        targetTime.setHours(0, 0, 0, 0);
-      } else {
-        // If it's before 4 AM, we're currently open (but this is closed landing)
-        // Still show time until next midnight
-        targetTime = new Date(now);
-        targetTime.setDate(targetTime.getDate() + 1);
-        targetTime.setHours(0, 0, 0, 0);
-      }
-
-      const difference = targetTime.getTime() - now.getTime();
-
-      const hours = Math.floor(difference / (1000 * 60 * 60));
-      const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((difference % (1000 * 60)) / 1000);
-
-      return { hours, minutes, seconds };
-    };
-
-    const timer = setInterval(() => {
-      setTimeLeft(calculateTimeLeft());
-    }, 1000);
-
-    // Initial calculation
-    setTimeLeft(calculateTimeLeft());
-
-    return () => clearInterval(timer);
-  }, []);
+  const { nextOpenAt } = useMidnightAccess();
+  const timeLeft = useCountdown(nextOpenAt);
 
   const formatTime = (time: number): string => {
     return time.toString().padStart(2, '0');

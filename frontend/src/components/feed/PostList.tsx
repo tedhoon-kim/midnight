@@ -1,63 +1,117 @@
 import { PostCard } from './PostCard';
-
-const mockPosts = [
-  {
-    id: 1,
-    author: '편의점 야식러',
-    time: '15분 전',
-    tag: 'shout' as const,
-    content: '이 공기, 이 소음. 지금 나만 살아있는 것 같은 이 기분이 좋으면서도 지독하게 외롭다. 다들 자?\n\n편의점 불빛 아래 앉아서 맥주 하나 따고 있는데, 이상하게 이 순간이 너무 좋아.',
-    reactions: 47,
-    comments: 12,
-    isReacted: false,
-  },
-  {
-    id: 2,
-    author: '잠 못 드는 개발자',
-    time: '32분 전',
-    tag: 'monologue' as const,
-    content: '새벽에 코딩하면 왜 이렇게 잘 되지? 낮에는 버그 하나 못 잡는데 새벽에는 머리가 맑아지는 느낌...',
-    reactions: 89,
-    comments: 23,
-    isReacted: true,
-  },
-  {
-    id: 3,
-    author: '익명의 대학생',
-    time: '1시간 전',
-    tag: 'comfort' as const,
-    content: '취준 3년차... 이번에도 서류 탈락했어. 뭐가 문제인지 모르겠다. 다들 어떻게 취업하는 거야? 정말 지쳤어.',
-    reactions: 156,
-    comments: 67,
-    isReacted: false,
-  },
-  {
-    id: 4,
-    author: '밤산책러',
-    time: '2시간 전',
-    tag: 'monologue' as const,
-    content: '새벽에 산책하다가 고양이 만났다. 서로 눈 마주치고 가만히 있다가 각자 갈 길 갔어. 이상하게 위로가 됐다.',
-    imageUrl: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=800',
-    reactions: 234,
-    comments: 45,
-    isReacted: true,
-  },
-];
+import { Spinner } from '../ui/Spinner';
+import { EmptyState } from '../ui/EmptyState';
+import { usePosts } from '../../hooks/usePosts';
+import { useAuth } from '../../contexts/AuthContext';
+import { toggleReaction } from '../../lib/api/reactions';
+import type { TagType } from '../../lib/database.types';
 
 interface PostListProps {
-  onPostClick?: (id: number) => void;
+  tag?: TagType;
+  onPostClick?: (id: string) => void;
 }
 
-export const PostList = ({ onPostClick }: PostListProps) => {
+export const PostList = ({ tag, onPostClick }: PostListProps) => {
+  const { user } = useAuth();
+  const { posts, isLoading, error, updatePost, loadMore, hasMore } = usePosts({ tag });
+
+  const handleReaction = async (postId: string, isReacted: boolean, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!user) return;
+
+    // 낙관적 업데이트
+    const post = posts.find(p => p.id === postId);
+    if (!post) return;
+
+    updatePost(postId, {
+      is_reacted: !isReacted,
+      reactions_count: post.reactions_count + (isReacted ? -1 : 1),
+    });
+
+    try {
+      // 목록에서는 기본 'heart' 리액션 사용
+      await toggleReaction(user.id, postId, 'heart', isReacted);
+    } catch (err) {
+      // 롤백
+      updatePost(postId, {
+        is_reacted: isReacted,
+        reactions_count: post.reactions_count,
+      });
+    }
+  };
+
+  if (isLoading && posts.length === 0) {
+    return (
+      <div className="w-full flex justify-center py-12">
+        <Spinner size="lg" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <EmptyState
+        type="error"
+        title="글을 불러오지 못했어요"
+        description="잠시 후 다시 시도해주세요"
+      />
+    );
+  }
+
+  if (posts.length === 0) {
+    return (
+      <EmptyState
+        type="no-posts"
+        title="아직 글이 없어요"
+        description="첫 번째 이야기를 남겨보세요"
+      />
+    );
+  }
+
+  // 상대 시간 포맷
+  const formatRelativeTime = (dateStr: string) => {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diff = now.getTime() - date.getTime();
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+
+    if (minutes < 1) return '방금 전';
+    if (minutes < 60) return `${minutes}분 전`;
+    if (hours < 24) return `${hours}시간 전`;
+    return date.toLocaleDateString('ko-KR');
+  };
+
   return (
     <div className="w-full flex flex-col gap-4">
-      {mockPosts.map((post) => (
+      {posts.map((post) => (
         <PostCard
           key={post.id}
-          {...post}
+          id={post.id}
+          author={post.user?.nickname || '익명'}
+          authorProfileImage={post.user?.profile_image_url}
+          time={formatRelativeTime(post.created_at)}
+          tag={post.tag}
+          content={post.content}
+          imageUrl={post.image_url || undefined}
+          reactions={post.reactions_count}
+          comments={post.comments_count}
+          isReacted={post.is_reacted}
           onClick={() => onPostClick?.(post.id)}
+          onReaction={(e) => handleReaction(post.id, post.is_reacted || false, e)}
         />
       ))}
+      
+      {/* Load More */}
+      {hasMore && (
+        <button
+          onClick={loadMore}
+          disabled={isLoading}
+          className="w-full py-4 text-midnight-text-muted hover:text-midnight-text-secondary transition-colors disabled:opacity-50"
+        >
+          {isLoading ? <Spinner size="sm" /> : '더 보기'}
+        </button>
+      )}
     </div>
   );
 };

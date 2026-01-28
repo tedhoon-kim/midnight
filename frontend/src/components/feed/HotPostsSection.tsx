@@ -1,35 +1,27 @@
 import { Flame, ChevronRight } from 'lucide-react';
 import { HotPostCard } from './HotPostCard';
-
-const hotPosts = [
-  {
-    id: 1,
-    tag: 'monologue' as const,
-    content: '새벽 3시에 라면 끓여 먹으면서 유튜브 보는 이 시간이 제일 좋아...',
-    reactions: 47,
-    comments: 12,
-  },
-  {
-    id: 2,
-    tag: 'comfort' as const,
-    content: '오늘 면접 떨어졌어. 세 번째야. 이제 진짜 뭘 해야 할지 모르겠다...',
-    reactions: 89,
-    comments: 34,
-  },
-  {
-    id: 3,
-    tag: 'shout' as const,
-    content: '야 나 진짜 행복해!! 오늘 드디어 합격 통보 받았다!!!',
-    reactions: 156,
-    comments: 45,
-  },
-];
+import { Spinner } from '../ui/Spinner';
+import { useHotPosts } from '../../hooks/usePosts';
 
 interface HotPostsSectionProps {
-  onPostClick?: (id: number) => void;
+  onPostClick?: (id: string) => void;
 }
 
 export const HotPostsSection = ({ onPostClick }: HotPostsSectionProps) => {
+  const { posts, isLoading } = useHotPosts(3);
+
+  if (isLoading) {
+    return (
+      <div className="w-full flex justify-center py-8">
+        <Spinner size="md" />
+      </div>
+    );
+  }
+
+  if (posts.length === 0) {
+    return null;
+  }
+
   return (
     <div className="w-full flex flex-col gap-3">
       {/* Header */}
@@ -50,13 +42,13 @@ export const HotPostsSection = ({ onPostClick }: HotPostsSectionProps) => {
 
       {/* Cards */}
       <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-        {hotPosts.map((post) => (
+        {posts.map((post) => (
           <HotPostCard
             key={post.id}
             tag={post.tag}
             content={post.content}
-            reactions={post.reactions}
-            comments={post.comments}
+            reactions={post.reactions_count}
+            comments={post.comments_count}
             onClick={() => onPostClick?.(post.id)}
           />
         ))}

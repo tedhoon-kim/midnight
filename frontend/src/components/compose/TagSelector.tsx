@@ -1,10 +1,10 @@
 import { CloudMoon, HeartCrack, Megaphone } from 'lucide-react';
-
-type TagType = 'monologue' | 'comfort' | 'shout';
+import type { TagType } from '../../lib/database.types';
 
 interface TagSelectorProps {
   selectedTag: TagType | null;
   onSelect: (tag: TagType) => void;
+  disabled?: boolean;
 }
 
 const tags = [
@@ -13,7 +13,7 @@ const tags = [
   { id: 'shout' as TagType, label: '세상에 외친다', icon: Megaphone, color: '#7BA3C9', bg: '#151A20' },
 ];
 
-export const TagSelector = ({ selectedTag, onSelect }: TagSelectorProps) => {
+export const TagSelector = ({ selectedTag, onSelect, disabled }: TagSelectorProps) => {
   return (
     <div className="flex flex-col gap-3">
       <span className="text-[#888888] text-[13px] font-medium">태그 선택</span>
@@ -27,7 +27,8 @@ export const TagSelector = ({ selectedTag, onSelect }: TagSelectorProps) => {
             <button
               key={tag.id}
               onClick={() => onSelect(tag.id)}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all ${
+              disabled={disabled}
+              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
                 isSelected 
                   ? 'ring-2 ring-offset-2 ring-offset-midnight-bg' 
                   : 'hover:opacity-80'

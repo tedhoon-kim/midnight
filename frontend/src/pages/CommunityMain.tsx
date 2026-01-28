@@ -6,31 +6,42 @@ import { FilterTabs } from '../components/feed/FilterTabs';
 import { HotPostsSection } from '../components/feed/HotPostsSection';
 import { PostList } from '../components/feed/PostList';
 import { Footer } from '../components/common/Footer';
-
-type TabType = 'all' | 'monologue' | 'comfort' | 'shout';
+import { useAuth } from '../contexts/AuthContext';
+import { useMidnightAccess } from '../hooks/useMidnightAccess';
+import type { TagType } from '../lib/database.types';
 
 export const CommunityMain = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<TabType>('all');
+  const { user } = useAuth();
+  const { timeLeft } = useMidnightAccess();
+  const [activeTab, setActiveTab] = useState<TagType | 'all'>('all');
 
   const handleCompose = () => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
     navigate('/compose');
   };
 
-  const handlePostClick = (id: number) => {
+  const handlePostClick = (id: string) => {
     navigate(`/post/${id}`);
   };
 
   const handleProfileClick = () => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
     navigate('/profile');
   };
-  void handleProfileClick; // Mark as intentionally unused for now
 
   return (
     <div className="min-h-screen bg-midnight-bg flex flex-col items-center">
       <HeaderOpen 
-        timeLeft="03:47:22 남음" 
-        nickname="익명의 올빼미" 
+        timeLeft={`${timeLeft} 남음`}
+        nickname={user?.nickname || '익명'} 
+        onProfileClick={handleProfileClick}
       />
       
       {/* Main Content */}
@@ -40,7 +51,10 @@ export const CommunityMain = () => {
         
         {/* Filter Section */}
         <div className="flex flex-col gap-5">
-          <FilterTabs activeTab={activeTab} onTabChange={setActiveTab} />
+          <FilterTabs 
+            activeTab={activeTab} 
+            onTabChange={(tab) => setActiveTab(tab as TagType | 'all')} 
+          />
           
           {/* Hot Posts */}
           <HotPostsSection onPostClick={handlePostClick} />
@@ -50,7 +64,10 @@ export const CommunityMain = () => {
         <div className="w-full h-px bg-midnight-border"></div>
         
         {/* Post List */}
-        <PostList onPostClick={handlePostClick} />
+        <PostList 
+          tag={activeTab === 'all' ? undefined : activeTab}
+          onPostClick={handlePostClick} 
+        />
       </main>
       
       <Footer />

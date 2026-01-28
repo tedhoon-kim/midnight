@@ -1,7 +1,7 @@
-import { Inbox, Search, FileText, MessageCircle, Heart } from 'lucide-react';
+import { Inbox, Search, FileText, MessageCircle, Heart, AlertCircle, PenLine } from 'lucide-react';
 import type { ReactNode } from 'react';
 
-type EmptyStateType = 'default' | 'search' | 'posts' | 'comments' | 'reactions';
+type EmptyStateType = 'default' | 'search' | 'posts' | 'comments' | 'reactions' | 'error' | 'no-posts' | 'no-comments' | 'no-my-posts';
 
 interface EmptyStateProps {
   type?: EmptyStateType;
@@ -35,6 +35,26 @@ const defaultContent = {
     icon: Heart,
     title: '공감한 글이 없어요',
     description: '마음에 드는 글에 공감을 눌러보세요.',
+  },
+  error: {
+    icon: AlertCircle,
+    title: '오류가 발생했어요',
+    description: '잠시 후 다시 시도해주세요.',
+  },
+  'no-posts': {
+    icon: MessageCircle,
+    title: '아직 글이 없어요',
+    description: '첫 번째 이야기를 남겨보세요.',
+  },
+  'no-comments': {
+    icon: MessageCircle,
+    title: '아직 댓글이 없어요',
+    description: '첫 번째 댓글을 남겨주세요.',
+  },
+  'no-my-posts': {
+    icon: PenLine,
+    title: '작성한 글이 없어요',
+    description: '새벽의 이야기를 남겨보세요.',
   },
 };
 

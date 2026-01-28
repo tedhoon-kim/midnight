@@ -1,10 +1,13 @@
-import { User, CloudMoon, HeartCrack, Megaphone, Heart, MessageCircle, Ellipsis } from 'lucide-react';
-
-type TagType = 'monologue' | 'comfort' | 'shout';
+import { useState } from 'react';
+import { CloudMoon, HeartCrack, Megaphone, Heart, MessageCircle, Ellipsis } from 'lucide-react';
+import { ImageModal } from '../ui/ImageModal';
+import { Avatar } from '../ui/Avatar';
+import type { TagType } from '../../lib/database.types';
 
 interface PostCardProps {
-  id: number;
+  id: string;
   author: string;
+  authorProfileImage?: string | null;
   time: string;
   tag: TagType;
   content: string;
@@ -13,6 +16,7 @@ interface PostCardProps {
   comments: number;
   isReacted?: boolean;
   onClick?: () => void;
+  onReaction?: (e: React.MouseEvent) => void;
 }
 
 const tagConfig = {
@@ -23,6 +27,7 @@ const tagConfig = {
 
 export const PostCard = ({
   author,
+  authorProfileImage,
   time,
   tag,
   content,
@@ -31,7 +36,9 @@ export const PostCard = ({
   comments,
   isReacted = false,
   onClick,
+  onReaction,
 }: PostCardProps) => {
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const config = tagConfig[tag];
   const TagIcon = config.icon;
 
@@ -44,9 +51,7 @@ export const PostCard = ({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           {/* Avatar */}
-          <div className="w-10 h-10 bg-midnight-border rounded-full flex items-center justify-center">
-            <User className="w-5 h-5 text-midnight-text-subtle" />
-          </div>
+          <Avatar src={authorProfileImage} alt={author} size="md" />
           
           {/* Author Info */}
           <div className="flex flex-col gap-1">
@@ -83,13 +88,28 @@ export const PostCard = ({
 
       {/* Image */}
       {imageUrl && (
-        <div className="w-full h-48 md:h-64 rounded-lg overflow-hidden">
+        <div 
+          className="w-full h-48 md:h-64 rounded-lg overflow-hidden"
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsImageModalOpen(true);
+          }}
+        >
           <img 
             src={imageUrl} 
             alt="Post image" 
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover hover:opacity-90 transition-opacity"
           />
         </div>
+      )}
+
+      {/* Image Modal */}
+      {imageUrl && (
+        <ImageModal 
+          imageUrl={imageUrl}
+          isOpen={isImageModalOpen}
+          onClose={() => setIsImageModalOpen(false)}
+        />
       )}
 
       {/* Footer */}
@@ -98,7 +118,7 @@ export const PostCard = ({
           className={`flex items-center gap-1.5 py-2 px-3 rounded hover:bg-midnight-border transition-colors ${
             isReacted ? 'text-status-error' : 'text-midnight-text-subtle'
           }`}
-          onClick={(e) => e.stopPropagation()}
+          onClick={onReaction}
         >
           <Heart className={`w-4 h-4 ${isReacted ? 'fill-current' : ''}`} />
           <span className="text-[13px] font-medium">{reactions}</span>
