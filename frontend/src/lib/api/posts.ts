@@ -67,12 +67,18 @@ export async function getPosts(options: GetPostsOptions = {}): Promise<PostWithD
 }
 
 // 핫 포스트 조회 (반응 많은 순)
-export async function getHotPosts(limit = 3): Promise<PostWithDetails[]> {
-  console.log('getHotPosts called with limit:', limit);
+export async function getHotPosts(limit = 3, tag?: TagType): Promise<PostWithDetails[]> {
+  console.log('getHotPosts called with:', { limit, tag });
 
-  const { data, error } = await supabase
+  let query = supabase
     .from('posts_with_counts')
-    .select('*')
+    .select('*');
+
+  if (tag) {
+    query = query.eq('tag', tag);
+  }
+
+  const { data, error } = await query
     .order('reactions_count', { ascending: false })
     .order('created_at', { ascending: false })
     .limit(limit);

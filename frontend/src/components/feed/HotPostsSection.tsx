@@ -1,14 +1,30 @@
+import { useEffect, useRef } from 'react';
 import { Flame, ChevronRight } from 'lucide-react';
 import { HotPostCard } from './HotPostCard';
 import { Spinner } from '../ui/Spinner';
 import { useHotPosts } from '../../hooks/usePosts';
+import type { TagType } from '../../lib/database.types';
 
 interface HotPostsSectionProps {
+  tag?: TagType;
+  refreshTrigger?: number;
   onPostClick?: (id: string) => void;
 }
 
-export const HotPostsSection = ({ onPostClick }: HotPostsSectionProps) => {
-  const { posts, isLoading } = useHotPosts(3);
+export const HotPostsSection = ({ tag, refreshTrigger, onPostClick }: HotPostsSectionProps) => {
+  const { posts, isLoading, refresh } = useHotPosts({ tag, limit: 3 });
+  const initialMountRef = useRef(true);
+
+  // refreshTrigger 변경 시 새로고침
+  useEffect(() => {
+    if (initialMountRef.current) {
+      initialMountRef.current = false;
+      return;
+    }
+    if (refreshTrigger !== undefined) {
+      refresh();
+    }
+  }, [refreshTrigger, refresh]);
 
   if (isLoading) {
     return (

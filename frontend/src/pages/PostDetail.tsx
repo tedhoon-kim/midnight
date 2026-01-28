@@ -142,6 +142,27 @@ export const PostDetail = () => {
     await addReply(replyingTo, content);
   };
 
+  // 공유 핸들러
+  const handleShare = async () => {
+    const url = window.location.href;
+
+    try {
+      await navigator.clipboard.writeText(url);
+      showToast('링크가 복사되었습니다', 'info');
+    } catch {
+      // fallback: 구형 브라우저 지원
+      const textArea = document.createElement('textarea');
+      textArea.value = url;
+      textArea.style.position = 'fixed';
+      textArea.style.opacity = '0';
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      showToast('링크가 복사되었습니다', 'info');
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-midnight-bg flex items-center justify-center">
@@ -190,6 +211,7 @@ export const PostDetail = () => {
           comments={commentsCount}
           myReactions={post.my_reactions}
           onReact={handleReaction}
+          onShare={handleShare}
         />
 
         {/* Comments */}

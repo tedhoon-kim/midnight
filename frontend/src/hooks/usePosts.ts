@@ -120,15 +120,22 @@ export function usePosts(options: UsePostsOptions = {}) {
   };
 }
 
-export function useHotPosts(limit = 3) {
+interface UseHotPostsOptions {
+  tag?: TagType;
+  limit?: number;
+}
+
+export function useHotPosts(options: UseHotPostsOptions = {}) {
+  const { tag, limit = 3 } = options;
   const { user } = useAuth();
   const [posts, setPosts] = useState<PostWithDetails[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
-  
+
   // 무한 루프 방지
   const isFetchingRef = useRef(false);
   const initialFetchDoneRef = useRef(false);
+  const currentTagRef = useRef(tag);
 
   const fetchHotPosts = useCallback(async () => {
     if (isFetchingRef.current) return;
@@ -138,7 +145,7 @@ export function useHotPosts(limit = 3) {
       setIsLoading(true);
       setError(null);
 
-      const data = await getHotPosts(limit);
+      const data = await getHotPosts(limit, tag);
 
       // 사용자가 로그인한 경우 공감 여부 확인
       let postsWithReactions = data;
@@ -158,7 +165,7 @@ export function useHotPosts(limit = 3) {
       setIsLoading(false);
       isFetchingRef.current = false;
     }
-  }, [limit, user?.id]);
+  }, [limit, tag, user?.id]);
 
   // 초기 로드 - 한 번만 실행
   useEffect(() => {
@@ -167,6 +174,15 @@ export function useHotPosts(limit = 3) {
       fetchHotPosts();
     }
   }, []);
+
+  // 태그 변경 시 다시 로드
+  useEffect(() => {
+    if (currentTagRef.current !== tag) {
+      currentTagRef.current = tag;
+      isFetchingRef.current = false; // 강제 리셋
+      fetchHotPosts();
+    }
+  }, [tag, fetchHotPosts]);
 
   return {
     posts,

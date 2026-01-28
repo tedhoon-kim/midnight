@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { PostCard } from './PostCard';
 import { Spinner } from '../ui/Spinner';
 import { EmptyState } from '../ui/EmptyState';
@@ -9,12 +10,25 @@ import type { TagType, SortType } from '../../lib/database.types';
 interface PostListProps {
   tag?: TagType;
   sortBy?: SortType;
+  refreshTrigger?: number;
   onPostClick?: (id: string) => void;
 }
 
-export const PostList = ({ tag, sortBy, onPostClick }: PostListProps) => {
+export const PostList = ({ tag, sortBy, refreshTrigger, onPostClick }: PostListProps) => {
   const { user } = useAuth();
-  const { posts, isLoading, error, updatePost, loadMore, hasMore } = usePosts({ tag, sortBy });
+  const { posts, isLoading, error, updatePost, loadMore, hasMore, refresh } = usePosts({ tag, sortBy });
+  const initialMountRef = useRef(true);
+
+  // refreshTrigger 변경 시 새로고침
+  useEffect(() => {
+    if (initialMountRef.current) {
+      initialMountRef.current = false;
+      return;
+    }
+    if (refreshTrigger !== undefined) {
+      refresh();
+    }
+  }, [refreshTrigger, refresh]);
 
   const handleReaction = async (postId: string, isReacted: boolean, e: React.MouseEvent) => {
     e.stopPropagation();
