@@ -8,7 +8,8 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[];
 
-export type TagType = 'monologue' | 'comfort' | 'shout';
+// 태그 타입 (6종류)
+export type TagType = 'monologue' | 'comfort' | 'shout' | 'emotion' | 'food' | 'music';
 
 // 리액션 타입 (6종류)
 export type ReactionType = 'hand-heart' | 'heart' | 'moon' | 'smile' | 'beer' | 'coffee';
@@ -52,8 +53,9 @@ export interface Database {
           content: string;
           tag: TagType;
           image_url: string | null;
+          is_permanent: boolean;
           created_at: string;
-          expires_at: string;
+          expires_at: string | null;
         };
         Insert: {
           id?: string;
@@ -61,8 +63,9 @@ export interface Database {
           content: string;
           tag: TagType;
           image_url?: string | null;
+          is_permanent?: boolean;
           created_at?: string;
-          expires_at?: string;
+          expires_at?: string | null;
         };
         Update: {
           id?: string;
@@ -70,8 +73,9 @@ export interface Database {
           content?: string;
           tag?: TagType;
           image_url?: string | null;
+          is_permanent?: boolean;
           created_at?: string;
-          expires_at?: string;
+          expires_at?: string | null;
         };
       };
       reactions: {
@@ -149,8 +153,9 @@ export interface Database {
           content: string;
           tag: TagType;
           image_url: string | null;
+          is_permanent: boolean;
           created_at: string;
-          expires_at: string;
+          expires_at: string | null;
           author_nickname: string;
           author_profile_image_url: string | null;
           reactions_count: number;

@@ -1,6 +1,7 @@
-import { CloudMoon, HeartCrack, Megaphone } from 'lucide-react';
+import { TAGS } from '../../lib/constants';
+import type { TagType } from '../../lib/database.types';
 
-type TabType = 'all' | 'monologue' | 'comfort' | 'shout';
+export type TabType = 'all' | TagType;
 
 interface FilterTabsProps {
   activeTab: TabType;
@@ -8,10 +9,8 @@ interface FilterTabsProps {
 }
 
 const tabs = [
-  { id: 'all' as TabType, label: '전체', icon: null },
-  { id: 'monologue' as TabType, label: '혼잣말', icon: CloudMoon, color: '#9B8AA6' },
-  { id: 'comfort' as TabType, label: '위로가 필요해', icon: HeartCrack, color: '#E8B4B8' },
-  { id: 'shout' as TabType, label: '세상에 외친다', icon: Megaphone, color: '#7BA3C9' },
+  { id: 'all' as TabType, label: '전체', icon: null, color: undefined },
+  ...TAGS.map(tag => ({ id: tag.id as TabType, label: tag.label, icon: tag.icon, color: tag.color })),
 ];
 
 export const FilterTabs = ({ activeTab, onTabChange }: FilterTabsProps) => {

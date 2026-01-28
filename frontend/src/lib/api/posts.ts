@@ -5,6 +5,7 @@ export interface CreatePostData {
   content: string;
   tag: TagType;
   image_url?: string;
+  is_permanent?: boolean;
 }
 
 export interface GetPostsOptions {
@@ -100,6 +101,7 @@ export async function createPost(userId: string, postData: CreatePostData) {
       content: postData.content,
       tag: postData.tag,
       image_url: postData.image_url,
+      is_permanent: postData.is_permanent ?? false,
     } as any)
     .select()
     .single();

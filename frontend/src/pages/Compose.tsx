@@ -30,6 +30,7 @@ export const Compose = () => {
   const [content, setContent] = useState('');
   const [selectedTag, setSelectedTag] = useState<TagType | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [isPermanent, setIsPermanent] = useState(false); // 글 유지 설정
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async () => {
@@ -50,6 +51,7 @@ export const Compose = () => {
         content: content.trim(),
         tag: selectedTag,
         image_url: imageUrl,
+        is_permanent: isPermanent,
       });
       
       showToast('글이 등록되었습니다', 'success');
@@ -98,14 +100,81 @@ export const Compose = () => {
 
           {/* Tag Selector */}
           <TagSelector selectedTag={selectedTag} onSelect={setSelectedTag} disabled={isSubmitting} />
+
+          {/* 글 유지 설정 */}
+          <div className="flex flex-col gap-2.5">
+            <span className="text-[#888888] text-xs font-medium">글 유지 설정</span>
+            
+            {/* 모바일: 세로 배치, 데스크탑: 가로 배치 */}
+            <div className="flex flex-col md:flex-row gap-2">
+              {/* 오늘만 */}
+              <button
+                type="button"
+                onClick={() => setIsPermanent(false)}
+                disabled={isSubmitting}
+                className={`flex-1 flex items-center gap-2.5 p-3 transition-all disabled:opacity-50 ${
+                  !isPermanent
+                    ? 'bg-[#0D0D0F] border-[1.5px] border-[#6BA3FF]'
+                    : 'bg-[#0D0D0F] border border-[#1E1E24] hover:border-[#333]'
+                }`}
+              >
+                <div 
+                  className={`w-4 h-4 rounded-full flex-shrink-0 flex items-center justify-center ${
+                    !isPermanent ? 'border-[1.5px] border-[#6BA3FF]' : 'border-[1.5px] border-[#404040]'
+                  }`}
+                >
+                  {!isPermanent && <div className="w-2 h-2 rounded-full bg-[#6BA3FF]" />}
+                </div>
+                <div className="flex flex-col gap-0.5 text-left">
+                  <p className={`text-[13px] font-medium ${!isPermanent ? 'text-white' : 'text-[#888]'}`}>
+                    오늘만 (새벽 4시에 자동 삭제)
+                  </p>
+                  <p className="text-[11px] text-[#666]">
+                    새벽의 솔직함은 새벽에만
+                  </p>
+                </div>
+              </button>
+
+              {/* 계속 유지 */}
+              <button
+                type="button"
+                onClick={() => setIsPermanent(true)}
+                disabled={isSubmitting}
+                className={`flex-1 flex items-center gap-2.5 p-3 transition-all disabled:opacity-50 ${
+                  isPermanent
+                    ? 'bg-[#0D0D0F] border-[1.5px] border-[#6BA3FF]'
+                    : 'bg-[#0D0D0F] border border-[#1E1E24] hover:border-[#333]'
+                }`}
+              >
+                <div 
+                  className={`w-4 h-4 rounded-full flex-shrink-0 flex items-center justify-center ${
+                    isPermanent ? 'border-[1.5px] border-[#6BA3FF]' : 'border-[1.5px] border-[#404040]'
+                  }`}
+                >
+                  {isPermanent && <div className="w-2 h-2 rounded-full bg-[#6BA3FF]" />}
+                </div>
+                <div className="flex flex-col gap-0.5 text-left">
+                  <p className={`text-[13px] font-medium ${isPermanent ? 'text-white' : 'text-[#888]'}`}>
+                    계속 유지
+                  </p>
+                  <p className="text-[11px] text-[#666]">
+                    글을 삭제하기 전까지 유지돼요
+                  </p>
+                </div>
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between">
-          <p className="text-midnight-text-subtle text-[13px]">
-            새벽 4시가 되면 모든 글이 사라져요
-          </p>
-          
+        <div className="flex items-center justify-end gap-3">
+          <button
+            onClick={() => navigate(-1)}
+            disabled={isSubmitting}
+            className="px-5 py-3 text-[14px] font-medium text-[#888] hover:text-white transition-colors disabled:opacity-50"
+          >
+            취소
+          </button>
           <button
             onClick={handleSubmit}
             disabled={!isValid || isSubmitting}

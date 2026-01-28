@@ -1,9 +1,9 @@
-import { useState } from 'react';
-import { CloudMoon, HeartCrack, Megaphone, Ellipsis } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { Ellipsis, Trash2 } from 'lucide-react';
 import { ImageModal } from '../ui/ImageModal';
 import { Avatar } from '../ui/Avatar';
-
-type TagType = 'monologue' | 'comfort' | 'shout';
+import { TAG_CONFIG } from '../../lib/constants';
+import type { TagType } from '../../lib/database.types';
 
 interface PostDetailCardProps {
   author: string;
@@ -12,14 +12,9 @@ interface PostDetailCardProps {
   tag: TagType;
   content: string;
   imageUrl?: string;
-  onMoreClick?: () => void;
+  isMyPost?: boolean;
+  onDelete?: () => void;
 }
-
-const tagConfig = {
-  monologue: { label: '혼잣말', icon: CloudMoon, color: '#9B8AA6', bg: '#1A1520' },
-  comfort: { label: '위로가 필요해', icon: HeartCrack, color: '#E8B4B8', bg: '#201518' },
-  shout: { label: '세상에 외친다', icon: Megaphone, color: '#7BA3C9', bg: '#151A20' },
-};
 
 export const PostDetailCard = ({
   author,
@@ -28,11 +23,31 @@ export const PostDetailCard = ({
   tag,
   content,
   imageUrl,
-  onMoreClick,
+  isMyPost = false,
+  onDelete,
 }: PostDetailCardProps) => {
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
-  const config = tagConfig[tag];
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const config = TAG_CONFIG[tag];
   const TagIcon = config.icon;
+
+  // 메뉴 외부 클릭 시 닫기
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    if (isMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isMenuOpen]);
 
   return (
     <article className="w-full bg-midnight-card border border-midnight-border p-6 md:p-8 flex flex-col gap-6">
@@ -61,13 +76,33 @@ export const PostDetailCard = ({
           </div>
         </div>
 
-        {/* More Button */}
-        <button 
-          className="p-2 hover:bg-midnight-border rounded transition-colors"
-          onClick={onMoreClick}
-        >
-          <Ellipsis className="w-5 h-5 text-midnight-text-subtle" />
-        </button>
+        {/* More Button - 내 글일 때만 표시 */}
+        {isMyPost && (
+          <div className="relative" ref={menuRef}>
+            <button 
+              className="p-2 hover:bg-midnight-border rounded transition-colors"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              <Ellipsis className="w-5 h-5 text-midnight-text-subtle" />
+            </button>
+
+            {/* Dropdown Menu */}
+            {isMenuOpen && (
+              <div className="absolute right-0 top-full mt-1 bg-[#1E1E24] border border-[#333] rounded-lg shadow-lg overflow-hidden z-10">
+                <button
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    onDelete?.();
+                  }}
+                  className="flex items-center gap-2 px-4 py-3 text-status-error hover:bg-[#2A2A30] transition-colors w-full"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  <span className="text-sm">삭제</span>
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Content */}

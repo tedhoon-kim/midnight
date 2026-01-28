@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { CloudMoon, HeartCrack, Megaphone, Heart, MessageCircle, Ellipsis } from 'lucide-react';
+import { Heart, MessageCircle, Ellipsis } from 'lucide-react';
 import { ImageModal } from '../ui/ImageModal';
 import { Avatar } from '../ui/Avatar';
+import { TAG_CONFIG } from '../../lib/constants';
 import type { TagType } from '../../lib/database.types';
 
 interface PostCardProps {
@@ -19,12 +20,6 @@ interface PostCardProps {
   onReaction?: (e: React.MouseEvent) => void;
 }
 
-const tagConfig = {
-  monologue: { label: '혼잣말', icon: CloudMoon, color: '#9B8AA6', bg: '#1A1520' },
-  comfort: { label: '위로가 필요해', icon: HeartCrack, color: '#E8B4B8', bg: '#201518' },
-  shout: { label: '세상에 외친다', icon: Megaphone, color: '#7BA3C9', bg: '#151A20' },
-};
-
 export const PostCard = ({
   author,
   authorProfileImage,
@@ -39,7 +34,7 @@ export const PostCard = ({
   onReaction,
 }: PostCardProps) => {
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
-  const config = tagConfig[tag];
+  const config = TAG_CONFIG[tag];
   const TagIcon = config.icon;
 
   return (

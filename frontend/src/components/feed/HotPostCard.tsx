@@ -1,6 +1,6 @@
-import { CloudMoon, HeartCrack, Megaphone, Heart, MessageCircle } from 'lucide-react';
-
-type TagType = 'monologue' | 'comfort' | 'shout';
+import { Heart, MessageCircle } from 'lucide-react';
+import { TAG_CONFIG } from '../../lib/constants';
+import type { TagType } from '../../lib/database.types';
 
 interface HotPostCardProps {
   tag: TagType;
@@ -10,14 +10,8 @@ interface HotPostCardProps {
   onClick?: () => void;
 }
 
-const tagConfig = {
-  monologue: { label: '혼잣말', icon: CloudMoon, color: '#9B8AA6', bg: '#1A1520' },
-  comfort: { label: '위로가 필요해', icon: HeartCrack, color: '#E8B4B8', bg: '#201518' },
-  shout: { label: '세상에 외친다', icon: Megaphone, color: '#7BA3C9', bg: '#151A20' },
-};
-
 export const HotPostCard = ({ tag, content, reactions, comments, onClick }: HotPostCardProps) => {
-  const config = tagConfig[tag];
+  const config = TAG_CONFIG[tag];
   const Icon = config.icon;
 
   return (

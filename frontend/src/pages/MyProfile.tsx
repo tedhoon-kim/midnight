@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Heart, MessageCircle, FileText, Settings, LogOut, ChevronRight, CloudMoon, HeartCrack, Megaphone, Pencil } from 'lucide-react';
+import { Heart, MessageCircle, FileText, LogOut, Pencil } from 'lucide-react';
 import { HeaderWithBack } from '../components/common/HeaderWithBack';
 import { Spinner } from '../components/ui/Spinner';
 import { EmptyState } from '../components/ui/EmptyState';
@@ -9,15 +9,10 @@ import { ProfileEditModal } from '../components/modals/ProfileEditModal';
 import { useAuth } from '../contexts/AuthContext';
 import { useMidnightAccess } from '../hooks/useMidnightAccess';
 import { getMyPosts, getReactedPosts } from '../lib/api/posts';
+import { TAG_CONFIG } from '../lib/constants';
 import type { PostWithDetails, TagType } from '../lib/database.types';
 
 type TabType = 'posts' | 'reactions' | 'comments';
-
-const tagConfig = {
-  monologue: { label: '혼잣말', icon: CloudMoon, color: '#9B8AA6', bg: '#1A1520' },
-  comfort: { label: '위로가 필요해', icon: HeartCrack, color: '#E8B4B8', bg: '#201518' },
-  shout: { label: '세상에 외친다', icon: Megaphone, color: '#7BA3C9', bg: '#151A20' },
-};
 
 export const MyProfile = () => {
   const navigate = useNavigate();
@@ -190,7 +185,7 @@ export const MyProfile = () => {
         ) : (
           <div className="flex flex-col gap-3">
             {currentPosts.map((post) => {
-              const config = tagConfig[post.tag as TagType];
+              const config = TAG_CONFIG[post.tag as TagType];
               const TagIcon = config.icon;
               
               return (
@@ -238,20 +233,9 @@ export const MyProfile = () => {
         )}
       </section>
 
-      {/* Settings Menu */}
+      {/* Logout */}
       <section className="px-5 py-4 mt-4 border-t border-midnight-border">
-        <h3 className="text-midnight-text-muted text-xs font-semibold uppercase tracking-wider mb-3">
-          설정
-        </h3>
         <div className="bg-midnight-card border border-midnight-border rounded-xl overflow-hidden">
-          <button className="w-full flex items-center justify-between p-4 hover:bg-midnight-border/50 transition-colors">
-            <div className="flex items-center gap-3">
-              <Settings className="w-5 h-5 text-midnight-text-muted" />
-              <span className="text-midnight-text-secondary text-sm">알림 설정</span>
-            </div>
-            <ChevronRight className="w-4 h-4 text-midnight-text-subtle" />
-          </button>
-          <div className="border-t border-midnight-border" />
           <button 
             onClick={handleSignOut}
             className="w-full flex items-center justify-between p-4 hover:bg-midnight-border/50 transition-colors text-status-error"
