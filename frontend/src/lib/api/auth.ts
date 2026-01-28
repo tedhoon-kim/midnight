@@ -1,4 +1,4 @@
-import { supabase } from '../supabase';
+import { supabase, supabasePublic } from '../supabase';
 import type { User } from '../database.types';
 
 // 랜덤 닉네임 생성 (클라이언트 사이드)
@@ -147,12 +147,12 @@ export function onAuthStateChange(callback: (session: any) => void) {
 // 사용자 통계 조회
 export async function getUserStats(userId: string) {
   const [postsResult, commentsResult] = await Promise.all([
-    supabase.from('posts').select('id', { count: 'exact', head: true }).eq('user_id', userId),
-    supabase.from('comments').select('id', { count: 'exact', head: true }).eq('user_id', userId),
+    supabasePublic.from('posts').select('id', { count: 'exact', head: true }).eq('user_id', userId),
+    supabasePublic.from('comments').select('id', { count: 'exact', head: true }).eq('user_id', userId),
   ]);
 
   // 받은 공감 수는 posts_with_counts에서 합산
-  const { data: posts } = await supabase
+  const { data: posts } = await supabasePublic
     .from('posts_with_counts')
     .select('reactions_count')
     .eq('user_id', userId);

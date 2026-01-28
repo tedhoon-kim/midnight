@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import type { Session } from '@supabase/supabase-js';
-import { supabase } from '../lib/supabase';
+import { supabase, supabasePublic } from '../lib/supabase';
 import type { User } from '../lib/database.types';
 
 interface AuthContextType {
@@ -62,7 +62,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     try {
       // 먼저 auth.uid()와 동일한 id로 사용자 조회
-      let { data: existingUser, error: fetchError } = await supabase
+      let { data: existingUser, error: fetchError } = await supabasePublic
         .from('users')
         .select('*')
         .eq('id', authUserId)
@@ -74,13 +74,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       // id로 못 찾으면 provider + provider_id로 찾기
       if (!existingUser) {
-        const { data: userByProvider } = await supabase
+        const { data: userByProvider } = await supabasePublic
           .from('users')
           .select('*')
           .eq('provider', provider)
           .eq('provider_id', providerId)
           .maybeSingle();
-        
+
         existingUser = userByProvider;
       }
 
@@ -107,7 +107,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           console.error('Error creating user:', insertError);
           // 이미 존재하는 경우 다시 조회
           if (insertError.code === '23505') {
-            const { data: retryUser } = await supabase
+            const { data: retryUser } = await supabasePublic
               .from('users')
               .select('*')
               .eq('id', authUserId)

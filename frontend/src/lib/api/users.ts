@@ -1,4 +1,4 @@
-import { supabase } from '../supabase';
+import { supabase, supabasePublic } from '../supabase';
 import type { User } from '../database.types';
 
 export interface UpdateProfileData {
@@ -26,7 +26,7 @@ export async function updateProfile(userId: string, data: UpdateProfileData): Pr
 
 // 사용자 정보 조회
 export async function getUser(userId: string): Promise<User | null> {
-  const { data, error } = await supabase
+  const { data, error } = await supabasePublic
     .from('users')
     .select('*')
     .eq('id', userId)
