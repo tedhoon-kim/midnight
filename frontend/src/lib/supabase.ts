@@ -10,4 +10,17 @@ if (!supabaseUrl || !supabaseAnonKey) {
   );
 }
 
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
+export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true,
+    // 세션 복원 실패 시 조용히 처리
+    storageKey: 'midnight-auth',
+  },
+  global: {
+    headers: {
+      'x-client-info': 'midnight-web',
+    },
+  },
+});

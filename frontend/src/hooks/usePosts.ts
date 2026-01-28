@@ -12,7 +12,7 @@ interface UsePostsOptions {
 }
 
 export function usePosts(options: UsePostsOptions = {}) {
-  const { user, isLoading: authLoading } = useAuth();
+  const { user } = useAuth();
   const [posts, setPosts] = useState<PostWithDetails[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -69,13 +69,13 @@ export function usePosts(options: UsePostsOptions = {}) {
     }
   }, [options.tag, options.sortBy, options.limit, user?.id, posts.length]);
 
-  // 초기 로드 - auth 로딩 완료 후 한 번만 실행
+  // 초기 로드 - 한 번만 실행
   useEffect(() => {
-    if (!authLoading && !initialFetchDoneRef.current) {
+    if (!initialFetchDoneRef.current) {
       initialFetchDoneRef.current = true;
       fetchPosts(true);
     }
-  }, [authLoading]);
+  }, []);
 
   // 태그 또는 정렬 변경 시 다시 로드
   useEffect(() => {
@@ -127,7 +127,7 @@ interface UseHotPostsOptions {
 
 export function useHotPosts(options: UseHotPostsOptions = {}) {
   const { tag, limit = 3 } = options;
-  const { user, isLoading: authLoading } = useAuth();
+  const { user } = useAuth();
   const [posts, setPosts] = useState<PostWithDetails[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -167,13 +167,13 @@ export function useHotPosts(options: UseHotPostsOptions = {}) {
     }
   }, [limit, tag, user?.id]);
 
-  // 초기 로드 - auth 로딩 완료 후 한 번만 실행
+  // 초기 로드 - 한 번만 실행
   useEffect(() => {
-    if (!authLoading && !initialFetchDoneRef.current) {
+    if (!initialFetchDoneRef.current) {
       initialFetchDoneRef.current = true;
       fetchHotPosts();
     }
-  }, [authLoading]);
+  }, []);
 
   // 태그 변경 시 다시 로드
   useEffect(() => {
