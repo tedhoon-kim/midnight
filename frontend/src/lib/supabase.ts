@@ -10,17 +10,20 @@ if (!supabaseUrl || !supabaseAnonKey) {
   );
 }
 
+// 메인 클라이언트 (인증용)
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
   auth: {
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: true,
-    // 세션 복원 실패 시 조용히 처리
     storageKey: 'midnight-auth',
   },
-  global: {
-    headers: {
-      'x-client-info': 'midnight-web',
-    },
+});
+
+// 공개 데이터 조회용 클라이언트 (인증 없이)
+export const supabasePublic = createClient<Database>(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    autoRefreshToken: false,
+    persistSession: false,
   },
 });

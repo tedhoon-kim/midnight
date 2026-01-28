@@ -1,4 +1,4 @@
-import { supabase } from '../supabase';
+import { supabase, supabasePublic } from '../supabase';
 import type { TagType, SortType, PostWithDetails, PostWithCountsRow } from '../database.types';
 
 export interface CreatePostData {
@@ -21,7 +21,7 @@ export async function getPosts(options: GetPostsOptions = {}): Promise<PostWithD
 
   console.log('getPosts called with:', { tag, sortBy, limit, offset });
 
-  let query = supabase
+  let query = supabasePublic
     .from('posts_with_counts')
     .select('*');
 
@@ -70,7 +70,7 @@ export async function getPosts(options: GetPostsOptions = {}): Promise<PostWithD
 export async function getHotPosts(limit = 3, tag?: TagType): Promise<PostWithDetails[]> {
   console.log('getHotPosts called with:', { limit, tag });
 
-  let query = supabase
+  let query = supabasePublic
     .from('posts_with_counts')
     .select('*');
 
@@ -98,7 +98,7 @@ export async function getHotPosts(limit = 3, tag?: TagType): Promise<PostWithDet
 
 // 글 상세 조회
 export async function getPost(id: string): Promise<PostWithDetails | null> {
-  const { data, error } = await supabase
+  const { data, error } = await supabasePublic
     .from('posts_with_counts')
     .select('*')
     .eq('id', id)
