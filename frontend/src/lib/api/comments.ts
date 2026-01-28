@@ -1,13 +1,28 @@
 import { supabase } from '../supabase';
-import type { CommentWithDetails, CommentWithCountsRow } from '../database.types';
+import type { CommentWithDetails, CommentWithCountsRow, CommentSortType } from '../database.types';
 
-// 댓글 목록 조회
-export async function getComments(postId: string): Promise<CommentWithDetails[]> {
-  const { data, error } = await supabase
+// 댓글 목록 조회 (정렬 옵션 포함)
+export async function getComments(
+  postId: string, 
+  sortBy: CommentSortType = 'latest'
+): Promise<CommentWithDetails[]> {
+  let query = supabase
     .from('comments_with_counts')
     .select('*')
-    .eq('post_id', postId)
-    .order('created_at', { ascending: true });
+    .eq('post_id', postId);
+
+  // 정렬 적용
+  if (sortBy === 'popular') {
+    // 인기순: 좋아요 많은 순, 같으면 최신순
+    query = query
+      .order('likes_count', { ascending: false })
+      .order('created_at', { ascending: false });
+  } else {
+    // 최신순
+    query = query.order('created_at', { ascending: true });
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     console.error('Error fetching comments:', error);
@@ -20,14 +35,20 @@ export async function getComments(postId: string): Promise<CommentWithDetails[]>
   }));
 }
 
-// 댓글 작성
-export async function createComment(userId: string, postId: string, content: string) {
+// 댓글 작성 (일반 댓글 또는 대댓글)
+export async function createComment(
+  userId: string, 
+  postId: string, 
+  content: string,
+  parentId?: string | null
+) {
   const { data, error } = await supabase
     .from('comments')
     .insert({
       user_id: userId,
       post_id: postId,
       content,
+      parent_id: parentId || null,
     } as any)
     .select()
     .single();
@@ -38,6 +59,16 @@ export async function createComment(userId: string, postId: string, content: str
   }
 
   return data;
+}
+
+// 대댓글(답글) 작성
+export async function createReply(
+  userId: string,
+  postId: string,
+  parentId: string,
+  content: string
+) {
+  return createComment(userId, postId, content, parentId);
 }
 
 // 댓글 삭제

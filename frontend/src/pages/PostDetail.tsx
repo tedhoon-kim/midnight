@@ -6,6 +6,7 @@ import { ReactionBar } from '../components/post/ReactionBar';
 import { CommentInput } from '../components/post/CommentInput';
 import { CommentList } from '../components/post/CommentList';
 import { DeleteModal } from '../components/modals/DeleteModal';
+import { ReportModal } from '../components/modals/ReportModal';
 import { Spinner } from '../components/ui/Spinner';
 import { EmptyState } from '../components/ui/EmptyState';
 import { useToast } from '../components/ui/Toast';
@@ -14,6 +15,8 @@ import { useComments } from '../hooks/useComments';
 import { useMidnightAccess } from '../hooks/useMidnightAccess';
 import { useAuth } from '../contexts/AuthContext';
 import { deletePost } from '../lib/api/posts';
+import { createReport } from '../lib/api/reports';
+import type { ReportReasonType } from '../lib/database.types';
 
 export const PostDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -22,10 +25,27 @@ export const PostDetail = () => {
   const { timeLeft } = useMidnightAccess();
   const { showToast } = useToast();
   const { post, isLoading, error, handleReaction } = usePost(id || '');
-  const { comments, addComment, removeComment, handleLike, count: commentsCount } = useComments(id || '');
-  
+  const {
+    comments,
+    addComment,
+    addReply,
+    removeComment,
+    handleLike,
+    reportComment,
+    sortBy,
+    handleSortChange,
+    expandedReplies,
+    toggleReplies,
+    replyingTo,
+    startReply,
+    cancelReply,
+    count: commentsCount
+  } = useComments(id || '');
+
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isReportPostModalOpen, setIsReportPostModalOpen] = useState(false);
+  const [isReportingPost, setIsReportingPost] = useState(false);
 
   // 내 글인지 확인
   const isMyPost = user && post && post.user_id === user.id;
@@ -55,7 +75,7 @@ export const PostDetail = () => {
   // 글 삭제 핸들러
   const handleDeletePost = async () => {
     if (!id) return;
-    
+
     setIsDeleting(true);
     try {
       await deletePost(id);
@@ -68,6 +88,58 @@ export const PostDetail = () => {
       setIsDeleting(false);
       setIsDeleteModalOpen(false);
     }
+  };
+
+  // 글 신고 핸들러
+  const handleReportPost = async (reason: string, detail?: string) => {
+    if (!id || !user) return;
+
+    setIsReportingPost(true);
+    try {
+      await createReport({
+        reporterId: user.id,
+        targetType: 'post',
+        targetId: id,
+        reason: reason as ReportReasonType,
+        detail,
+      });
+      showToast('신고가 접수되었습니다', 'info');
+      setIsReportPostModalOpen(false);
+    } catch (err: any) {
+      console.error('Error reporting post:', err);
+      if (err.message?.includes('이미 신고')) {
+        showToast('이미 신고한 게시물입니다', 'error');
+      } else {
+        showToast('신고에 실패했습니다', 'error');
+      }
+    } finally {
+      setIsReportingPost(false);
+    }
+  };
+
+  // 댓글 신고 핸들러
+  const handleReportComment = async (commentId: string, reason: ReportReasonType, detail?: string) => {
+    try {
+      await reportComment(commentId, reason, detail);
+      showToast('신고가 접수되었습니다', 'info');
+    } catch (err: any) {
+      console.error('Error reporting comment:', err);
+      if (err.message?.includes('이미 신고')) {
+        showToast('이미 신고한 댓글입니다', 'error');
+      } else {
+        showToast('신고에 실패했습니다', 'error');
+      }
+    }
+  };
+
+  // 답글 제출 핸들러
+  const handleReplySubmit = async (content: string) => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    if (!replyingTo) return;
+    await addReply(replyingTo, content);
   };
 
   if (isLoading) {
@@ -109,6 +181,7 @@ export const PostDetail = () => {
           imageUrl={post.image_url || undefined}
           isMyPost={isMyPost ?? false}
           onDelete={() => setIsDeleteModalOpen(true)}
+          onReport={() => setIsReportPostModalOpen(true)}
         />
 
         {/* Reaction Bar */}
@@ -120,15 +193,26 @@ export const PostDetail = () => {
         />
 
         {/* Comments */}
-        <CommentList 
+        <CommentList
           comments={comments}
           currentUserId={user?.id}
+          postAuthorId={post.user_id}
+          sortBy={sortBy}
+          onSortChange={handleSortChange}
           onLike={handleLike}
           onDelete={removeComment}
+          onReport={handleReportComment}
+          onReply={startReply}
+          onToggleReplies={toggleReplies}
+          expandedReplies={expandedReplies}
         />
 
         {/* Comment Input */}
-        <CommentInput onSubmit={handleCommentSubmit} />
+        <CommentInput
+          onSubmit={replyingTo ? handleReplySubmit : handleCommentSubmit}
+          replyingTo={replyingTo}
+          onCancelReply={cancelReply}
+        />
       </main>
 
       {/* Delete Confirmation Modal */}
@@ -139,6 +223,14 @@ export const PostDetail = () => {
         title="글을 삭제할까요?"
         description="삭제된 글은 복구할 수 없어요."
         isLoading={isDeleting}
+      />
+
+      {/* Report Post Modal */}
+      <ReportModal
+        isOpen={isReportPostModalOpen}
+        onClose={() => setIsReportPostModalOpen(false)}
+        onSubmit={handleReportPost}
+        isLoading={isReportingPost}
       />
     </div>
   );

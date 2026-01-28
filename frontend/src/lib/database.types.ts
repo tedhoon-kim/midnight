@@ -14,6 +14,15 @@ export type TagType = 'monologue' | 'comfort' | 'shout' | 'emotion' | 'food' | '
 // 정렬 타입
 export type SortType = 'reactions' | 'views' | 'latest';
 
+// 댓글 정렬 타입
+export type CommentSortType = 'latest' | 'popular';
+
+// 신고 대상 타입
+export type ReportTargetType = 'post' | 'comment';
+
+// 신고 사유 타입
+export type ReportReasonType = 'spam' | 'abuse' | 'harassment' | 'inappropriate' | 'copyright' | 'other';
+
 // 리액션 타입 (6종류)
 export type ReactionType = 'hand-heart' | 'heart' | 'moon' | 'smile' | 'beer' | 'coffee';
 
@@ -112,6 +121,7 @@ export interface Database {
           id: string;
           user_id: string;
           post_id: string;
+          parent_id: string | null;
           content: string;
           created_at: string;
         };
@@ -119,6 +129,7 @@ export interface Database {
           id?: string;
           user_id: string;
           post_id: string;
+          parent_id?: string | null;
           content: string;
           created_at?: string;
         };
@@ -126,7 +137,37 @@ export interface Database {
           id?: string;
           user_id?: string;
           post_id?: string;
+          parent_id?: string | null;
           content?: string;
+          created_at?: string;
+        };
+      };
+      reports: {
+        Row: {
+          id: string;
+          reporter_id: string;
+          target_type: ReportTargetType;
+          target_id: string;
+          reason: ReportReasonType;
+          detail: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          reporter_id: string;
+          target_type: ReportTargetType;
+          target_id: string;
+          reason: ReportReasonType;
+          detail?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          reporter_id?: string;
+          target_type?: ReportTargetType;
+          target_id?: string;
+          reason?: ReportReasonType;
+          detail?: string | null;
           created_at?: string;
         };
       };
@@ -175,11 +216,13 @@ export interface Database {
           id: string;
           user_id: string;
           post_id: string;
+          parent_id: string | null;
           content: string;
           created_at: string;
           author_nickname: string;
           author_profile_image_url: string | null;
           likes_count: number;
+          replies_count: number;
         };
       };
     };
@@ -213,6 +256,7 @@ export type Post = Database['public']['Tables']['posts']['Row'];
 export type Reaction = Database['public']['Tables']['reactions']['Row'];
 export type Comment = Database['public']['Tables']['comments']['Row'];
 export type CommentLike = Database['public']['Tables']['comment_likes']['Row'];
+export type Report = Database['public']['Tables']['reports']['Row'];
 
 // View types
 export type PostWithCountsRow = Database['public']['Views']['posts_with_counts']['Row'];
@@ -229,4 +273,5 @@ export interface PostWithDetails extends PostWithCountsRow {
 export interface CommentWithDetails extends CommentWithCountsRow {
   user: Pick<User, 'id' | 'nickname' | 'profile_image_url'>;
   is_liked?: boolean;
+  replies?: CommentWithDetails[];
 }

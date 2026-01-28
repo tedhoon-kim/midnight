@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Ellipsis, Trash2 } from 'lucide-react';
+import { Ellipsis, Trash2, Flag } from 'lucide-react';
 import { ImageModal } from '../ui/ImageModal';
 import { Avatar } from '../ui/Avatar';
 import { TAG_CONFIG } from '../../lib/constants';
@@ -14,6 +14,7 @@ interface PostDetailCardProps {
   imageUrl?: string;
   isMyPost?: boolean;
   onDelete?: () => void;
+  onReport?: () => void;
 }
 
 export const PostDetailCard = ({
@@ -25,6 +26,7 @@ export const PostDetailCard = ({
   imageUrl,
   isMyPost = false,
   onDelete,
+  onReport,
 }: PostDetailCardProps) => {
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -76,8 +78,20 @@ export const PostDetailCard = ({
           </div>
         </div>
 
-        {/* More Button - 내 글일 때만 표시 */}
-        {isMyPost && (
+        {/* More Button */}
+        <div className="flex items-center gap-2">
+          {/* 신고 버튼 - 남의 글일 때만 표시 */}
+          {!isMyPost && (
+            <button
+              onClick={onReport}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 border border-[#333] rounded-lg text-[#666] hover:border-midnight-text-muted hover:text-midnight-text-muted transition-colors"
+            >
+              <Flag className="w-3.5 h-3.5" />
+              <span className="text-xs">신고</span>
+            </button>
+          )}
+          
+          {/* 더보기 버튼 */}
           <div className="relative" ref={menuRef}>
             <button 
               className="p-2 hover:bg-midnight-border rounded transition-colors"
@@ -88,21 +102,34 @@ export const PostDetailCard = ({
 
             {/* Dropdown Menu */}
             {isMenuOpen && (
-              <div className="absolute right-0 top-full mt-1 bg-[#1E1E24] border border-[#333] rounded-lg shadow-lg overflow-hidden z-10">
-                <button
-                  onClick={() => {
-                    setIsMenuOpen(false);
-                    onDelete?.();
-                  }}
-                  className="flex items-center gap-2 px-4 py-3 text-status-error hover:bg-[#2A2A30] transition-colors w-full"
-                >
-                  <Trash2 className="w-4 h-4" />
-                  <span className="text-sm">삭제</span>
-                </button>
+              <div className="absolute right-0 top-full mt-1 bg-[#1E1E24] border border-[#333] rounded-lg shadow-lg overflow-hidden z-10 min-w-[100px]">
+                {isMyPost ? (
+                  <button
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      onDelete?.();
+                    }}
+                    className="flex items-center gap-2 px-4 py-3 text-status-error hover:bg-[#2A2A30] transition-colors w-full"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    <span className="text-sm">삭제</span>
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      onReport?.();
+                    }}
+                    className="flex items-center gap-2 px-4 py-3 text-status-warning hover:bg-[#2A2A30] transition-colors w-full"
+                  >
+                    <Flag className="w-4 h-4" />
+                    <span className="text-sm">신고</span>
+                  </button>
+                )}
               </div>
             )}
           </div>
-        )}
+        </div>
       </div>
 
       {/* Content */}
