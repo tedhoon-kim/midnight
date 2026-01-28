@@ -3,10 +3,11 @@ import { getPosts, getHotPosts } from '../lib/api/posts';
 import type { GetPostsOptions } from '../lib/api/posts';
 import { checkReactions } from '../lib/api/reactions';
 import { useAuth } from '../contexts/AuthContext';
-import type { PostWithDetails, TagType } from '../lib/database.types';
+import type { PostWithDetails, TagType, SortType } from '../lib/database.types';
 
 interface UsePostsOptions {
   tag?: TagType;
+  sortBy?: SortType;
   limit?: number;
 }
 
@@ -21,6 +22,7 @@ export function usePosts(options: UsePostsOptions = {}) {
   const isFetchingRef = useRef(false);
   const initialFetchDoneRef = useRef(false);
   const currentTagRef = useRef(options.tag);
+  const currentSortRef = useRef(options.sortBy);
 
   const fetchPosts = useCallback(async (reset = false) => {
     // 이미 fetching 중이면 무시
@@ -34,6 +36,7 @@ export function usePosts(options: UsePostsOptions = {}) {
       const offset = reset ? 0 : posts.length;
       const fetchOptions: GetPostsOptions = {
         tag: options.tag,
+        sortBy: options.sortBy,
         limit: options.limit || 20,
         offset,
       };
@@ -64,7 +67,7 @@ export function usePosts(options: UsePostsOptions = {}) {
       setIsLoading(false);
       isFetchingRef.current = false;
     }
-  }, [options.tag, options.limit, user?.id, posts.length]);
+  }, [options.tag, options.sortBy, options.limit, user?.id, posts.length]);
 
   // 초기 로드 - 한 번만 실행
   useEffect(() => {
@@ -74,13 +77,14 @@ export function usePosts(options: UsePostsOptions = {}) {
     }
   }, []);
 
-  // 태그 변경 시에만 다시 로드
+  // 태그 또는 정렬 변경 시 다시 로드
   useEffect(() => {
-    if (currentTagRef.current !== options.tag) {
+    if (currentTagRef.current !== options.tag || currentSortRef.current !== options.sortBy) {
       currentTagRef.current = options.tag;
+      currentSortRef.current = options.sortBy;
       fetchPosts(true);
     }
-  }, [options.tag]);
+  }, [options.tag, options.sortBy]);
 
   const refresh = useCallback(() => {
     isFetchingRef.current = false; // 강제 리셋

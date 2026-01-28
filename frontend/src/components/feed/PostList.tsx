@@ -4,16 +4,17 @@ import { EmptyState } from '../ui/EmptyState';
 import { usePosts } from '../../hooks/usePosts';
 import { useAuth } from '../../contexts/AuthContext';
 import { toggleReaction } from '../../lib/api/reactions';
-import type { TagType } from '../../lib/database.types';
+import type { TagType, SortType } from '../../lib/database.types';
 
 interface PostListProps {
   tag?: TagType;
+  sortBy?: SortType;
   onPostClick?: (id: string) => void;
 }
 
-export const PostList = ({ tag, onPostClick }: PostListProps) => {
+export const PostList = ({ tag, sortBy, onPostClick }: PostListProps) => {
   const { user } = useAuth();
-  const { posts, isLoading, error, updatePost, loadMore, hasMore } = usePosts({ tag });
+  const { posts, isLoading, error, updatePost, loadMore, hasMore } = usePosts({ tag, sortBy });
 
   const handleReaction = async (postId: string, isReacted: boolean, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -96,6 +97,7 @@ export const PostList = ({ tag, onPostClick }: PostListProps) => {
           imageUrl={post.image_url || undefined}
           reactions={post.reactions_count}
           comments={post.comments_count}
+          views={post.view_count}
           isReacted={post.is_reacted}
           onClick={() => onPostClick?.(post.id)}
           onReaction={(e) => handleReaction(post.id, post.is_reacted || false, e)}

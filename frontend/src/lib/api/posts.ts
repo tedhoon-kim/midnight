@@ -1,5 +1,5 @@
 import { supabase } from '../supabase';
-import type { TagType, PostWithDetails, PostWithCountsRow } from '../database.types';
+import type { TagType, SortType, PostWithDetails, PostWithCountsRow } from '../database.types';
 
 export interface CreatePostData {
   content: string;
@@ -10,21 +10,42 @@ export interface CreatePostData {
 
 export interface GetPostsOptions {
   tag?: TagType;
+  sortBy?: SortType;
   limit?: number;
   offset?: number;
 }
 
 // 글 목록 조회
 export async function getPosts(options: GetPostsOptions = {}): Promise<PostWithDetails[]> {
-  const { tag, limit = 20, offset = 0 } = options;
+  const { tag, sortBy = 'latest', limit = 20, offset = 0 } = options;
 
-  console.log('getPosts called with:', { tag, limit, offset });
+  console.log('getPosts called with:', { tag, sortBy, limit, offset });
 
   let query = supabase
     .from('posts_with_counts')
-    .select('*')
-    .order('created_at', { ascending: false })
-    .range(offset, offset + limit - 1);
+    .select('*');
+
+  // 정렬 적용
+  switch (sortBy) {
+    case 'reactions':
+      query = query.order('reactions_count', { ascending: false });
+      break;
+    case 'views':
+      query = query.order('view_count', { ascending: false });
+      break;
+    case 'latest':
+    default:
+      query = query.order('created_at', { ascending: false });
+      break;
+  }
+  
+  // 2차 정렬: 항상 최신순
+  if (sortBy !== 'latest') {
+    query = query.order('created_at', { ascending: false });
+  }
+
+  // 페이지네이션
+  query = query.range(offset, offset + limit - 1);
 
   if (tag) {
     query = query.eq('tag', tag);
@@ -180,4 +201,36 @@ export async function getReactedPosts(userId: string): Promise<PostWithDetails[]
     ...post,
     user: { id: post.user_id, nickname: post.author_nickname, profile_image_url: post.author_profile_image_url },
   }));
+}
+
+// 조회수 증가 (중복 방지)
+export async function incrementViewCount(postId: string, userId?: string): Promise<boolean> {
+  // IP 해시 대신 간단한 세션 기반 처리 (클라이언트에서 IP 접근 불가)
+  // 로그인 사용자는 user_id로, 비로그인은 localStorage 키로 중복 방지
+  
+  const viewKey = `post_view_${postId}`;
+  
+  // 비로그인 사용자: localStorage로 중복 체크
+  if (!userId) {
+    const viewed = localStorage.getItem(viewKey);
+    if (viewed) {
+      return false; // 이미 조회함
+    }
+    localStorage.setItem(viewKey, 'true');
+  }
+
+  // RPC 함수 호출 (DB에서 중복 체크)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase.rpc as any)('increment_view_count', {
+    p_post_id: postId,
+    p_user_id: userId || null,
+    p_ip_hash: userId ? null : `local_${Date.now()}`, // 비로그인은 임시 해시
+  });
+
+  if (error) {
+    console.error('Error incrementing view count:', error);
+    return false;
+  }
+
+  return data as boolean;
 }

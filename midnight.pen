@@ -2168,6 +2168,167 @@
                 },
                 {
                   "type": "frame",
+                  "id": "wcu48",
+                  "name": "Sort Filter Row",
+                  "width": "fill_container",
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "p0lIX",
+                      "name": "Sort Label",
+                      "gap": 6,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "P7hhF",
+                          "name": "sortIcon",
+                          "width": 14,
+                          "height": 14,
+                          "iconFontName": "arrow-up-down",
+                          "iconFontFamily": "lucide",
+                          "fill": "#666666"
+                        },
+                        {
+                          "type": "text",
+                          "id": "Wi1Fv",
+                          "name": "sortText",
+                          "fill": "#666666",
+                          "content": "정렬",
+                          "fontFamily": "Inter",
+                          "fontSize": 13,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "GWf7m",
+                      "name": "Sort Options",
+                      "gap": 8,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "GeuEe",
+                          "name": "Sort Hot",
+                          "fill": "#FFFFFF",
+                          "cornerRadius": 16,
+                          "gap": 4,
+                          "padding": [
+                            6,
+                            12
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon_font",
+                              "id": "HvFQA",
+                              "name": "sortHotIcon",
+                              "width": 13,
+                              "height": 13,
+                              "iconFontName": "flame",
+                              "iconFontFamily": "lucide",
+                              "fill": "#000000"
+                            },
+                            {
+                              "type": "text",
+                              "id": "zvRQD",
+                              "name": "sortHotText",
+                              "fill": "#000000",
+                              "content": "반응순",
+                              "fontFamily": "Inter",
+                              "fontSize": 12,
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "0SIUB",
+                          "name": "Sort View",
+                          "fill": "transparent",
+                          "cornerRadius": 16,
+                          "stroke": {
+                            "thickness": 1,
+                            "fill": "#333333"
+                          },
+                          "gap": 4,
+                          "padding": [
+                            6,
+                            12
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon_font",
+                              "id": "8tNUu",
+                              "name": "sortViewIcon",
+                              "width": 13,
+                              "height": 13,
+                              "iconFontName": "eye",
+                              "iconFontFamily": "lucide",
+                              "fill": "#888888"
+                            },
+                            {
+                              "type": "text",
+                              "id": "kGkp8",
+                              "name": "sortViewText",
+                              "fill": "#888888",
+                              "content": "조회순",
+                              "fontFamily": "Inter",
+                              "fontSize": 12,
+                              "fontWeight": "500"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "AUYrC",
+                          "name": "Sort New",
+                          "fill": "transparent",
+                          "cornerRadius": 16,
+                          "stroke": {
+                            "thickness": 1,
+                            "fill": "#333333"
+                          },
+                          "gap": 4,
+                          "padding": [
+                            6,
+                            12
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon_font",
+                              "id": "Q52Zz",
+                              "name": "sortNewIcon",
+                              "width": 13,
+                              "height": 13,
+                              "iconFontName": "clock-3",
+                              "iconFontFamily": "lucide",
+                              "fill": "#888888"
+                            },
+                            {
+                              "type": "text",
+                              "id": "vLPXB",
+                              "name": "sortNewText",
+                              "fill": "#888888",
+                              "content": "최신순",
+                              "fontFamily": "Inter",
+                              "fontSize": 12,
+                              "fontWeight": "500"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
                   "id": "sO1qZ",
                   "name": "Hot Posts Section",
                   "width": "fill_container",
@@ -2873,6 +3034,35 @@
                               "fontWeight": "500"
                             }
                           ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "Zrk0W",
+                          "name": "post1View",
+                          "gap": 6,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon_font",
+                              "id": "8koyH",
+                              "name": "view1Icon",
+                              "width": 16,
+                              "height": 16,
+                              "iconFontName": "eye",
+                              "iconFontFamily": "lucide",
+                              "fill": "#404040"
+                            },
+                            {
+                              "type": "text",
+                              "id": "gb7lG",
+                              "name": "view1Num",
+                              "fill": "#666666",
+                              "content": "142",
+                              "fontFamily": "JetBrains Mono",
+                              "fontSize": 13,
+                              "fontWeight": "500"
+                            }
+                          ]
                         }
                       ]
                     }
@@ -3063,6 +3253,35 @@
                               "name": "post2CommentNum",
                               "fill": "#666666",
                               "content": "15",
+                              "fontFamily": "JetBrains Mono",
+                              "fontSize": 13,
+                              "fontWeight": "500"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "hBNuC",
+                          "name": "post2View",
+                          "gap": 6,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon_font",
+                              "id": "Cp9ah",
+                              "name": "view2Icon",
+                              "width": 16,
+                              "height": 16,
+                              "iconFontName": "eye",
+                              "iconFontFamily": "lucide",
+                              "fill": "#404040"
+                            },
+                            {
+                              "type": "text",
+                              "id": "v7g9a",
+                              "name": "view2Num",
+                              "fill": "#666666",
+                              "content": "287",
                               "fontFamily": "JetBrains Mono",
                               "fontSize": 13,
                               "fontWeight": "500"
@@ -3278,6 +3497,35 @@
                               "name": "post3CommentNum",
                               "fill": "#666666",
                               "content": "23",
+                              "fontFamily": "JetBrains Mono",
+                              "fontSize": 13,
+                              "fontWeight": "500"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "1N6rL",
+                          "name": "post3View",
+                          "gap": 6,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon_font",
+                              "id": "rRQLg",
+                              "name": "view3Icon",
+                              "width": 16,
+                              "height": 16,
+                              "iconFontName": "eye",
+                              "iconFontFamily": "lucide",
+                              "fill": "#404040"
+                            },
+                            {
+                              "type": "text",
+                              "id": "XoHtV",
+                              "name": "view3Num",
+                              "fill": "#666666",
+                              "content": "412",
                               "fontFamily": "JetBrains Mono",
                               "fontSize": 13,
                               "fontWeight": "500"
@@ -3715,6 +3963,167 @@
                           "fontFamily": "Inter",
                           "fontSize": 12,
                           "fontWeight": "500"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "WOOD0",
+                  "name": "Mobile Sort Row",
+                  "width": "fill_container",
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "DSTE1",
+                      "name": "mSort Label",
+                      "gap": 4,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "bEGJP",
+                          "name": "mSortIcon",
+                          "width": 12,
+                          "height": 12,
+                          "iconFontName": "arrow-up-down",
+                          "iconFontFamily": "lucide",
+                          "fill": "#666666"
+                        },
+                        {
+                          "type": "text",
+                          "id": "TEh3M",
+                          "name": "mSortText",
+                          "fill": "#666666",
+                          "content": "정렬",
+                          "fontFamily": "Inter",
+                          "fontSize": 11,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "CPA7b",
+                      "name": "mSort Options",
+                      "gap": 6,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "hB7o8",
+                          "name": "mSort Hot",
+                          "fill": "#FFFFFF",
+                          "cornerRadius": 14,
+                          "gap": 3,
+                          "padding": [
+                            5,
+                            10
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon_font",
+                              "id": "2WQOG",
+                              "name": "mSortHotIcon",
+                              "width": 11,
+                              "height": 11,
+                              "iconFontName": "flame",
+                              "iconFontFamily": "lucide",
+                              "fill": "#000000"
+                            },
+                            {
+                              "type": "text",
+                              "id": "8iM0c",
+                              "name": "mSortHotText",
+                              "fill": "#000000",
+                              "content": "반응순",
+                              "fontFamily": "Inter",
+                              "fontSize": 11,
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "xxsy6",
+                          "name": "mSort View",
+                          "fill": "transparent",
+                          "cornerRadius": 14,
+                          "stroke": {
+                            "thickness": 1,
+                            "fill": "#333333"
+                          },
+                          "gap": 3,
+                          "padding": [
+                            5,
+                            10
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon_font",
+                              "id": "4nPJI",
+                              "name": "mSortViewIcon",
+                              "width": 11,
+                              "height": 11,
+                              "iconFontName": "eye",
+                              "iconFontFamily": "lucide",
+                              "fill": "#888888"
+                            },
+                            {
+                              "type": "text",
+                              "id": "wOkpw",
+                              "name": "mSortViewText",
+                              "fill": "#888888",
+                              "content": "조회순",
+                              "fontFamily": "Inter",
+                              "fontSize": 11,
+                              "fontWeight": "500"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "zSmmn",
+                          "name": "mSort New",
+                          "fill": "transparent",
+                          "cornerRadius": 14,
+                          "stroke": {
+                            "thickness": 1,
+                            "fill": "#333333"
+                          },
+                          "gap": 3,
+                          "padding": [
+                            5,
+                            10
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon_font",
+                              "id": "wZQIi",
+                              "name": "mSortNewIcon",
+                              "width": 11,
+                              "height": 11,
+                              "iconFontName": "clock-3",
+                              "iconFontFamily": "lucide",
+                              "fill": "#888888"
+                            },
+                            {
+                              "type": "text",
+                              "id": "jd9n9",
+                              "name": "mSortNewText",
+                              "fill": "#888888",
+                              "content": "최신순",
+                              "fontFamily": "Inter",
+                              "fontSize": 11,
+                              "fontWeight": "500"
+                            }
+                          ]
                         }
                       ]
                     }
@@ -4287,6 +4696,35 @@
                           "fontWeight": "500"
                         }
                       ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "tpSol",
+                      "name": "mPost1View",
+                      "gap": 5,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "AYiAg",
+                          "name": "mView1Icon",
+                          "width": 14,
+                          "height": 14,
+                          "iconFontName": "eye",
+                          "iconFontFamily": "lucide",
+                          "fill": "#404040"
+                        },
+                        {
+                          "type": "text",
+                          "id": "CyIb5",
+                          "name": "mView1Num",
+                          "fill": "#666666",
+                          "content": "142",
+                          "fontFamily": "JetBrains Mono",
+                          "fontSize": 12,
+                          "fontWeight": "500"
+                        }
+                      ]
                     }
                   ]
                 }
@@ -4477,6 +4915,35 @@
                           "name": "mPost2CommentNum",
                           "fill": "#666666",
                           "content": "15",
+                          "fontFamily": "JetBrains Mono",
+                          "fontSize": 12,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "26Rra",
+                      "name": "mPost2View",
+                      "gap": 5,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "yPUlt",
+                          "name": "mView2Icon",
+                          "width": 14,
+                          "height": 14,
+                          "iconFontName": "eye",
+                          "iconFontFamily": "lucide",
+                          "fill": "#404040"
+                        },
+                        {
+                          "type": "text",
+                          "id": "ZJbN7",
+                          "name": "mView2Num",
+                          "fill": "#666666",
+                          "content": "287",
                           "fontFamily": "JetBrains Mono",
                           "fontSize": 12,
                           "fontWeight": "500"
@@ -4692,6 +5159,35 @@
                           "name": "mPost3CommentNum",
                           "fill": "#666666",
                           "content": "23",
+                          "fontFamily": "JetBrains Mono",
+                          "fontSize": 12,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "efg0Q",
+                      "name": "mPost3View",
+                      "gap": 5,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "8ozgr",
+                          "name": "mView3Icon",
+                          "width": 14,
+                          "height": 14,
+                          "iconFontName": "eye",
+                          "iconFontFamily": "lucide",
+                          "fill": "#404040"
+                        },
+                        {
+                          "type": "text",
+                          "id": "qBTuZ",
+                          "name": "mView3Num",
+                          "fill": "#666666",
+                          "content": "412",
                           "fontFamily": "JetBrains Mono",
                           "fontSize": 12,
                           "fontWeight": "500"

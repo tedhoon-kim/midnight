@@ -4,17 +4,20 @@ import { HeaderOpen } from '../components/common/HeaderOpen';
 import { ComposeBox } from '../components/feed/ComposeBox';
 import { FilterTabs } from '../components/feed/FilterTabs';
 import type { TabType } from '../components/feed/FilterTabs';
+import { SortFilter } from '../components/feed/SortFilter';
 import { HotPostsSection } from '../components/feed/HotPostsSection';
 import { PostList } from '../components/feed/PostList';
 import { Footer } from '../components/common/Footer';
 import { useAuth } from '../contexts/AuthContext';
 import { useMidnightAccess } from '../hooks/useMidnightAccess';
+import type { SortType } from '../lib/database.types';
 
 export const CommunityMain = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { timeLeft } = useMidnightAccess();
   const [activeTab, setActiveTab] = useState<TabType>('all');
+  const [activeSort, setActiveSort] = useState<SortType>('reactions');
 
   const handleCompose = () => {
     if (!user) {
@@ -51,9 +54,16 @@ export const CommunityMain = () => {
         
         {/* Filter Section */}
         <div className="flex flex-col gap-5">
+          {/* Tag Filter */}
           <FilterTabs 
             activeTab={activeTab} 
             onTabChange={setActiveTab} 
+          />
+          
+          {/* Sort Filter */}
+          <SortFilter
+            activeSort={activeSort}
+            onSortChange={setActiveSort}
           />
           
           {/* Hot Posts */}
@@ -66,6 +76,7 @@ export const CommunityMain = () => {
         {/* Post List */}
         <PostList 
           tag={activeTab === 'all' ? undefined : activeTab}
+          sortBy={activeSort}
           onPostClick={handlePostClick} 
         />
       </main>

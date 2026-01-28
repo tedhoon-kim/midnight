@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { getPost } from '../lib/api/posts';
+import { getPost, incrementViewCount } from '../lib/api/posts';
 import { getMyReactions, toggleReaction } from '../lib/api/reactions';
 import { useAuth } from '../contexts/AuthContext';
 import type { PostWithDetails, ReactionType, ReactionsByType } from '../lib/database.types';
@@ -10,6 +10,7 @@ export function usePost(postId: string) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const isFetchingRef = useRef(false);
+  const viewCountedRef = useRef(false);
 
   const fetchPost = useCallback(async () => {
     if (!postId || isFetchingRef.current) return;
@@ -31,6 +32,16 @@ export function usePost(postId: string) {
         });
       } else {
         setPost(data);
+      }
+
+      // 조회수 증가 (한 번만)
+      if (data && !viewCountedRef.current) {
+        viewCountedRef.current = true;
+        const viewIncreased = await incrementViewCount(postId, user?.id);
+        if (viewIncreased) {
+          // 조회수가 증가했으면 로컬 상태도 업데이트
+          setPost(prev => prev ? { ...prev, view_count: prev.view_count + 1 } : null);
+        }
       }
     } catch (err) {
       setError(err as Error);

@@ -11,6 +11,9 @@ export type Json =
 // 태그 타입 (6종류)
 export type TagType = 'monologue' | 'comfort' | 'shout' | 'emotion' | 'food' | 'music';
 
+// 정렬 타입
+export type SortType = 'reactions' | 'views' | 'latest';
+
 // 리액션 타입 (6종류)
 export type ReactionType = 'hand-heart' | 'heart' | 'moon' | 'smile' | 'beer' | 'coffee';
 
@@ -54,6 +57,7 @@ export interface Database {
           tag: TagType;
           image_url: string | null;
           is_permanent: boolean;
+          view_count: number;
           created_at: string;
           expires_at: string | null;
         };
@@ -64,6 +68,7 @@ export interface Database {
           tag: TagType;
           image_url?: string | null;
           is_permanent?: boolean;
+          view_count?: number;
           created_at?: string;
           expires_at?: string | null;
         };
@@ -74,6 +79,7 @@ export interface Database {
           tag?: TagType;
           image_url?: string | null;
           is_permanent?: boolean;
+          view_count?: number;
           created_at?: string;
           expires_at?: string | null;
         };
@@ -154,6 +160,7 @@ export interface Database {
           tag: TagType;
           image_url: string | null;
           is_permanent: boolean;
+          view_count: number;
           created_at: string;
           expires_at: string | null;
           author_nickname: string;
@@ -184,6 +191,14 @@ export interface Database {
       generate_random_nickname: {
         Args: Record<string, never>;
         Returns: string;
+      };
+      increment_view_count: {
+        Args: {
+          p_post_id: string;
+          p_user_id: string | null;
+          p_ip_hash: string | null;
+        };
+        Returns: boolean;
       };
     };
     Enums: {

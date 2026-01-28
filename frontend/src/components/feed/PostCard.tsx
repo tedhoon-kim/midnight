@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Heart, MessageCircle, Ellipsis } from 'lucide-react';
+import { Heart, MessageCircle, Eye, Ellipsis } from 'lucide-react';
 import { ImageModal } from '../ui/ImageModal';
 import { Avatar } from '../ui/Avatar';
 import { TAG_CONFIG } from '../../lib/constants';
@@ -15,6 +15,7 @@ interface PostCardProps {
   imageUrl?: string;
   reactions: number;
   comments: number;
+  views: number;
   isReacted?: boolean;
   onClick?: () => void;
   onReaction?: (e: React.MouseEvent) => void;
@@ -29,6 +30,7 @@ export const PostCard = ({
   imageUrl,
   reactions,
   comments,
+  views,
   isReacted = false,
   onClick,
   onReaction,
@@ -108,24 +110,26 @@ export const PostCard = ({
       )}
 
       {/* Footer */}
-      <div className="flex items-center gap-4 pt-2 border-t border-midnight-border">
+      <div className="flex items-center gap-5 pt-2 border-t border-midnight-border">
         <button 
-          className={`flex items-center gap-1.5 py-2 px-3 rounded hover:bg-midnight-border transition-colors ${
+          className={`flex items-center gap-1.5 py-2 rounded hover:bg-midnight-border transition-colors ${
             isReacted ? 'text-status-error' : 'text-midnight-text-subtle'
           }`}
           onClick={onReaction}
         >
           <Heart className={`w-4 h-4 ${isReacted ? 'fill-current' : ''}`} />
-          <span className="text-[13px] font-medium">{reactions}</span>
+          <span className="text-[13px] font-mono font-medium">{reactions}</span>
         </button>
         
-        <button 
-          className="flex items-center gap-1.5 py-2 px-3 rounded hover:bg-midnight-border transition-colors text-midnight-text-subtle"
-          onClick={(e) => e.stopPropagation()}
-        >
+        <div className="flex items-center gap-1.5 text-midnight-text-subtle">
           <MessageCircle className="w-4 h-4" />
-          <span className="text-[13px] font-medium">{comments}</span>
-        </button>
+          <span className="text-[13px] font-mono font-medium">{comments}</span>
+        </div>
+
+        <div className="flex items-center gap-1.5 text-midnight-text-subtle">
+          <Eye className="w-4 h-4" />
+          <span className="text-[13px] font-mono font-medium">{views}</span>
+        </div>
       </div>
     </article>
   );
