@@ -1,12 +1,12 @@
-import { supabase } from '../supabase';
+import { supabase, supabasePublic } from '../supabase';
 import type { CommentWithDetails, CommentWithCountsRow, CommentSortType } from '../database.types';
 
 // 댓글 목록 조회 (정렬 옵션 포함)
 export async function getComments(
-  postId: string, 
+  postId: string,
   sortBy: CommentSortType = 'latest'
 ): Promise<CommentWithDetails[]> {
-  let query = supabase
+  let query = supabasePublic
     .from('comments_with_counts')
     .select('*')
     .eq('post_id', postId);
@@ -135,7 +135,7 @@ export async function toggleCommentLike(userId: string, commentId: string, isLik
 export async function checkCommentLikes(userId: string, commentIds: string[]): Promise<Record<string, boolean>> {
   if (commentIds.length === 0) return {};
 
-  const { data, error } = await supabase
+  const { data, error } = await supabasePublic
     .from('comment_likes')
     .select('comment_id')
     .eq('user_id', userId)
@@ -154,7 +154,7 @@ export async function checkCommentLikes(userId: string, commentIds: string[]): P
 
 // 내가 댓글 단 글 조회
 export async function getCommentedPostIds(userId: string): Promise<string[]> {
-  const { data, error } = await supabase
+  const { data, error } = await supabasePublic
     .from('comments')
     .select('post_id')
     .eq('user_id', userId);

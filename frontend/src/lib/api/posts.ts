@@ -156,7 +156,7 @@ export async function deletePost(id: string) {
 
 // 내 글 조회
 export async function getMyPosts(userId: string): Promise<PostWithDetails[]> {
-  const { data, error } = await supabase
+  const { data, error } = await supabasePublic
     .from('posts_with_counts')
     .select('*')
     .eq('user_id', userId)
@@ -176,7 +176,7 @@ export async function getMyPosts(userId: string): Promise<PostWithDetails[]> {
 // 공감한 글 조회
 export async function getReactedPosts(userId: string): Promise<PostWithDetails[]> {
   // reactions 테이블에서 해당 사용자의 공감 목록을 가져옴
-  const { data: reactions, error: reactionsError } = await supabase
+  const { data: reactions, error: reactionsError } = await supabasePublic
     .from('reactions')
     .select('post_id')
     .eq('user_id', userId);
@@ -192,7 +192,7 @@ export async function getReactedPosts(userId: string): Promise<PostWithDetails[]
 
   const postIds = (reactions as Array<{ post_id: string }>).map(r => r.post_id);
 
-  const { data, error } = await supabase
+  const { data, error } = await supabasePublic
     .from('posts_with_counts')
     .select('*')
     .in('id', postIds)

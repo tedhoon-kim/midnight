@@ -1,4 +1,4 @@
-import { supabase } from '../supabase';
+import { supabase, supabasePublic } from '../supabase';
 import type { ReactionType } from '../database.types';
 
 // 리액션 추가
@@ -58,7 +58,7 @@ export async function toggleReaction(
 
 // 내가 특정 글에 누른 리액션 타입들 조회
 export async function getMyReactions(userId: string, postId: string): Promise<ReactionType[]> {
-  const { data, error } = await supabase
+  const { data, error } = await supabasePublic
     .from('reactions')
     .select('reaction_type')
     .eq('user_id', userId)
@@ -74,12 +74,12 @@ export async function getMyReactions(userId: string, postId: string): Promise<Re
 
 // 여러 글에 대한 내 리액션 조회
 export async function getMyReactionsForPosts(
-  userId: string, 
+  userId: string,
   postIds: string[]
 ): Promise<Record<string, ReactionType[]>> {
   if (postIds.length === 0) return {};
 
-  const { data, error } = await supabase
+  const { data, error } = await supabasePublic
     .from('reactions')
     .select('post_id, reaction_type')
     .eq('user_id', userId)
