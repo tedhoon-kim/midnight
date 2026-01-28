@@ -9,6 +9,7 @@ import { Compose } from './pages/Compose';
 import { Login } from './pages/Login';
 import { AuthCallback } from './pages/AuthCallback';
 import { MyProfile } from './pages/MyProfile';
+import { Admin } from './pages/Admin';
 import { NotFound } from './pages/NotFound';
 import { ServerError } from './pages/ServerError';
 import { Spinner } from './components/ui/Spinner';
@@ -103,6 +104,9 @@ function AppRoutes() {
         } 
       />
       
+      {/* Admin */}
+      <Route path="/tedhoon" element={<Admin />} />
+
       {/* Error Pages */}
       <Route path="/error" element={<ServerError />} />
       <Route path="*" element={<NotFound />} />

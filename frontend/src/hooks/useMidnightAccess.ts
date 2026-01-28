@@ -11,8 +11,18 @@ interface MidnightAccessState {
 const OPEN_HOUR = 0;
 const CLOSE_HOUR = 4;
 
-// 개발 모드에서는 항상 열림
-const DEV_MODE = true;
+// 개발 모드 (localStorage에서 관리)
+const DEV_MODE_KEY = 'midnight_dev_mode';
+
+function getDevMode(): boolean {
+  if (typeof window === 'undefined') return false;
+  return localStorage.getItem(DEV_MODE_KEY) === 'true';
+}
+
+export function setDevMode(enabled: boolean): void {
+  localStorage.setItem(DEV_MODE_KEY, String(enabled));
+  window.dispatchEvent(new Event('devModeChange'));
+}
 
 function getKoreanTime(): Date {
   return new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
@@ -23,7 +33,7 @@ function calculateMidnightState(): MidnightAccessState {
   const currentHour = now.getHours();
   
   // 개발 모드면 항상 열림, 아니면 시간 체크
-  const isOpen = DEV_MODE || (currentHour >= OPEN_HOUR && currentHour < CLOSE_HOUR);
+  const isOpen = getDevMode() || (currentHour >= OPEN_HOUR && currentHour < CLOSE_HOUR);
 
   // 다음 오픈/클로즈 시간 계산
   const today = new Date(now);
@@ -94,7 +104,15 @@ export function useMidnightAccess() {
   useEffect(() => {
     // 매초 업데이트
     const interval = setInterval(refresh, 1000);
-    return () => clearInterval(interval);
+
+    // 개발 모드 변경 감지
+    const handleDevModeChange = () => refresh();
+    window.addEventListener('devModeChange', handleDevModeChange);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('devModeChange', handleDevModeChange);
+    };
   }, [refresh]);
 
   return {
