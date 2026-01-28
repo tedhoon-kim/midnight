@@ -12,7 +12,7 @@ const OPEN_HOUR = 0;
 const CLOSE_HOUR = 4;
 
 // 개발 모드에서는 항상 열림
-const DEV_MODE = false;
+const DEV_MODE = true;
 
 function getKoreanTime(): Date {
   return new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
