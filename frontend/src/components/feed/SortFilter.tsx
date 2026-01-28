@@ -7,9 +7,9 @@ interface SortFilterProps {
 }
 
 const sortOptions: { id: SortType; label: string; icon: typeof Flame }[] = [
-  { id: 'reactions', label: '반응순', icon: Flame },
-  { id: 'views', label: '조회순', icon: Eye },
-  { id: 'latest', label: '최신순', icon: Clock3 },
+  { id: 'reactions', label: '인기', icon: Flame },
+  { id: 'views', label: '조회수', icon: Eye },
+  { id: 'latest', label: '최신', icon: Clock3 },
 ];
 
 export const SortFilter = ({ activeSort, onSortChange }: SortFilterProps) => {
@@ -17,12 +17,12 @@ export const SortFilter = ({ activeSort, onSortChange }: SortFilterProps) => {
     <div className="w-full flex items-center justify-between">
       {/* Sort Label */}
       <div className="flex items-center gap-1.5">
-        <ArrowUpDown className="w-3.5 h-3.5 text-midnight-text-muted" />
-        <span className="text-[13px] font-medium text-midnight-text-muted">정렬</span>
+        <ArrowUpDown className="w-3.5 h-3.5 text-[#666666]" />
+        <span className="text-[13px] font-medium text-[#666666]">정렬</span>
       </div>
 
       {/* Sort Options */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-4">
         {sortOptions.map((option) => {
           const isActive = activeSort === option.id;
           const Icon = option.icon;
@@ -31,17 +31,19 @@ export const SortFilter = ({ activeSort, onSortChange }: SortFilterProps) => {
             <button
               key={option.id}
               onClick={() => onSortChange(option.id)}
-              className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                isActive
-                  ? 'bg-white text-black'
-                  : 'bg-transparent border border-midnight-text-dim text-[#888888] hover:border-midnight-text-subtle'
-              }`}
+              className="flex items-center gap-1 transition-all"
             >
               <Icon
-                className="w-3.5 h-3.5"
-                style={{ color: isActive ? '#000000' : '#888888' }}
+                className="w-[13px] h-[13px]"
+                style={{ color: isActive ? '#FFFFFF' : '#555555' }}
               />
-              <span className={isActive ? 'font-semibold' : 'font-medium'}>
+              <span
+                className="text-xs"
+                style={{
+                  color: isActive ? '#FFFFFF' : '#555555',
+                  fontWeight: isActive ? 600 : 500,
+                }}
+              >
                 {option.label}
               </span>
             </button>
