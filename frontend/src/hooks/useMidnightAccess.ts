@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { supabasePublic } from '../lib/supabase';
 
 interface MidnightAccessState {
   isOpen: boolean;
@@ -11,17 +12,73 @@ interface MidnightAccessState {
 const OPEN_HOUR = 0;
 const CLOSE_HOUR = 4;
 
-// 개발 모드 (localStorage에서 관리)
-const DEV_MODE_KEY = 'midnight_dev_mode';
+// 개발 모드 키
+const LOCAL_DEV_MODE_KEY = 'midnight_dev_mode_local';
 
-function getDevMode(): boolean {
+// 로컬 개발 모드 (내 세션만)
+function getLocalDevMode(): boolean {
   if (typeof window === 'undefined') return false;
-  return localStorage.getItem(DEV_MODE_KEY) === 'true';
+  return localStorage.getItem(LOCAL_DEV_MODE_KEY) === 'true';
 }
 
-export function setDevMode(enabled: boolean): void {
-  localStorage.setItem(DEV_MODE_KEY, String(enabled));
+export function setLocalDevMode(enabled: boolean): void {
+  localStorage.setItem(LOCAL_DEV_MODE_KEY, String(enabled));
   window.dispatchEvent(new Event('devModeChange'));
+}
+
+// 전역 개발 모드 캐시 (Supabase에서 가져온 값)
+let globalDevModeCache = false;
+
+function getGlobalDevModeCache(): boolean {
+  return globalDevModeCache;
+}
+
+export function setGlobalDevModeCache(enabled: boolean): void {
+  globalDevModeCache = enabled;
+  window.dispatchEvent(new Event('devModeChange'));
+}
+
+// 전역 개발 모드 Supabase에서 조회
+export async function fetchGlobalDevMode(): Promise<boolean> {
+  try {
+    const { data, error } = await (supabasePublic as any)
+      .from('global_settings')
+      .select('value')
+      .eq('key', 'dev_mode')
+      .single();
+
+    if (error || !data) return false;
+    const enabled = (data.value as { enabled?: boolean })?.enabled ?? false;
+    globalDevModeCache = enabled;
+    return enabled;
+  } catch {
+    return false;
+  }
+}
+
+// 전역 개발 모드 Supabase에 저장
+export async function setGlobalDevMode(enabled: boolean): Promise<boolean> {
+  try {
+    const { error } = await (supabasePublic as any)
+      .from('global_settings')
+      .update({ value: { enabled }, updated_at: new Date().toISOString() })
+      .eq('key', 'dev_mode');
+
+    if (error) {
+      console.error('Error updating global dev mode:', error);
+      return false;
+    }
+    globalDevModeCache = enabled;
+    window.dispatchEvent(new Event('devModeChange'));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// 레거시 호환
+export function setDevMode(enabled: boolean): void {
+  setLocalDevMode(enabled);
 }
 
 function getKoreanTime(): Date {
@@ -31,9 +88,10 @@ function getKoreanTime(): Date {
 function calculateMidnightState(): MidnightAccessState {
   const now = getKoreanTime();
   const currentHour = now.getHours();
-  
-  // 개발 모드면 항상 열림, 아니면 시간 체크
-  const isOpen = getDevMode() || (currentHour >= OPEN_HOUR && currentHour < CLOSE_HOUR);
+
+  // 로컬 또는 전역 개발 모드면 항상 열림
+  const isDevMode = getLocalDevMode() || getGlobalDevModeCache();
+  const isOpen = isDevMode || (currentHour >= OPEN_HOUR && currentHour < CLOSE_HOUR);
 
   // 다음 오픈/클로즈 시간 계산
   const today = new Date(now);
@@ -43,32 +101,27 @@ function calculateMidnightState(): MidnightAccessState {
   let nextCloseAt: Date;
 
   if (isOpen) {
-    // 현재 오픈 상태: 오늘 4시에 닫힘
     nextCloseAt = new Date(today);
     nextCloseAt.setHours(CLOSE_HOUR, 0, 0, 0);
-    
-    // 다음 오픈은 내일 0시
+
     nextOpenAt = new Date(today);
     nextOpenAt.setDate(nextOpenAt.getDate() + 1);
     nextOpenAt.setHours(OPEN_HOUR, 0, 0, 0);
   } else if (currentHour >= CLOSE_HOUR) {
-    // 4시 이후: 다음 오픈은 내일 0시
     nextOpenAt = new Date(today);
     nextOpenAt.setDate(nextOpenAt.getDate() + 1);
     nextOpenAt.setHours(OPEN_HOUR, 0, 0, 0);
-    
+
     nextCloseAt = new Date(nextOpenAt);
     nextCloseAt.setHours(CLOSE_HOUR, 0, 0, 0);
   } else {
-    // 0시 이전 (이론상 불가능하지만 안전을 위해)
     nextOpenAt = new Date(today);
     nextOpenAt.setHours(OPEN_HOUR, 0, 0, 0);
-    
+
     nextCloseAt = new Date(today);
     nextCloseAt.setHours(CLOSE_HOUR, 0, 0, 0);
   }
 
-  // 남은 시간 계산
   const targetTime = isOpen ? nextCloseAt : nextOpenAt;
   const diff = targetTime.getTime() - now.getTime();
   const timeLeft = formatTimeLeft(diff);
@@ -102,6 +155,9 @@ export function useMidnightAccess() {
   }, []);
 
   useEffect(() => {
+    // 초기 로드 시 전역 개발 모드 조회
+    fetchGlobalDevMode().then(() => refresh());
+
     // 매초 업데이트
     const interval = setInterval(refresh, 1000);
 
@@ -118,9 +174,8 @@ export function useMidnightAccess() {
   return {
     ...state,
     refresh,
-    // 편의 메서드
-    timeLeftFormatted: state.isOpen 
-      ? `${state.timeLeft} 남음` 
+    timeLeftFormatted: state.isOpen
+      ? `${state.timeLeft} 남음`
       : `다음 오픈까지 ${state.timeLeft}`,
   };
 }

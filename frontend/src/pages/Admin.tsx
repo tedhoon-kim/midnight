@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { ArrowLeft, Moon, Users, FileText, MessageSquare, AlertTriangle, ToggleLeft, ToggleRight, Lock } from 'lucide-react';
+import { ArrowLeft, Moon, Globe, User, Users, FileText, MessageSquare, AlertTriangle, ToggleLeft, ToggleRight, Lock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { setDevMode } from '../hooks/useMidnightAccess';
+import { setLocalDevMode, fetchGlobalDevMode, setGlobalDevMode } from '../hooks/useMidnightAccess';
 import { Spinner } from '../components/ui/Spinner';
 
 // 인증 정보 (해시)
@@ -36,9 +36,11 @@ export const Admin = () => {
   const [loginPw, setLoginPw] = useState('');
   const [loginError, setLoginError] = useState('');
 
-  const [devMode, setDevModeState] = useState(() => {
-    return localStorage.getItem('midnight_dev_mode') === 'true';
+  const [localDevMode, setLocalDevModeState] = useState(() => {
+    return localStorage.getItem('midnight_dev_mode_local') === 'true';
   });
+  const [globalDevMode, setGlobalDevModeState] = useState(false);
+  const [isGlobalLoading, setIsGlobalLoading] = useState(false);
   const [stats, setStats] = useState<Stats | null>(null);
   const [recentReports, setRecentReports] = useState<RecentReport[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -63,6 +65,10 @@ export const Admin = () => {
   async function loadData() {
     setIsLoading(true);
     try {
+      // 전역 개발 모드 조회
+      const globalEnabled = await fetchGlobalDevMode();
+      setGlobalDevModeState(globalEnabled);
+
       // 통계 로드
       const [usersRes, postsRes, commentsRes, reportsRes] = await Promise.all([
         supabase.from('users').select('id', { count: 'exact', head: true }),
@@ -93,10 +99,20 @@ export const Admin = () => {
     }
   }
 
-  function handleDevModeToggle() {
-    const newValue = !devMode;
-    setDevModeState(newValue);
-    setDevMode(newValue);
+  function handleLocalDevModeToggle() {
+    const newValue = !localDevMode;
+    setLocalDevModeState(newValue);
+    setLocalDevMode(newValue);
+  }
+
+  async function handleGlobalDevModeToggle() {
+    const newValue = !globalDevMode;
+    setIsGlobalLoading(true);
+    const success = await setGlobalDevMode(newValue);
+    if (success) {
+      setGlobalDevModeState(newValue);
+    }
+    setIsGlobalLoading(false);
   }
 
   const reasonLabels: Record<string, string> = {
@@ -170,30 +186,64 @@ export const Admin = () => {
       </header>
 
       <main className="max-w-2xl mx-auto px-4 py-6 space-y-6">
-        {/* 개발 모드 토글 */}
+        {/* 개발 모드 */}
         <section className="bg-midnight-card border border-midnight-border rounded-2xl p-5">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center">
-                <Moon className="w-5 h-5 text-indigo-400" />
-              </div>
-              <div>
-                <h2 className="font-medium text-midnight-text-primary">개발 모드</h2>
-                <p className="text-sm text-midnight-text-muted">
-                  {devMode ? '시간 제한 없이 항상 열림' : '자정~새벽 4시에만 열림'}
-                </p>
-              </div>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center">
+              <Moon className="w-5 h-5 text-indigo-400" />
             </div>
-            <button
-              onClick={handleDevModeToggle}
-              className="text-indigo-400 hover:text-indigo-300 transition-colors"
-            >
-              {devMode ? (
-                <ToggleRight className="w-10 h-10" />
-              ) : (
-                <ToggleLeft className="w-10 h-10 text-midnight-text-muted" />
-              )}
-            </button>
+            <h2 className="font-medium text-midnight-text-primary">개발 모드</h2>
+          </div>
+
+          <div className="space-y-3">
+            {/* 로컬 (내 세션만) */}
+            <div className="flex items-center justify-between py-3 px-4 bg-midnight-bg rounded-xl">
+              <div className="flex items-center gap-3">
+                <User className="w-4 h-4 text-midnight-text-muted" />
+                <div>
+                  <p className="text-sm font-medium text-midnight-text-primary">내 세션만</p>
+                  <p className="text-xs text-midnight-text-muted">
+                    {localDevMode ? '활성화됨' : '비활성화'}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={handleLocalDevModeToggle}
+                className="text-indigo-400 hover:text-indigo-300 transition-colors"
+              >
+                {localDevMode ? (
+                  <ToggleRight className="w-9 h-9" />
+                ) : (
+                  <ToggleLeft className="w-9 h-9 text-midnight-text-muted" />
+                )}
+              </button>
+            </div>
+
+            {/* 전역 (전체 사용자) */}
+            <div className="flex items-center justify-between py-3 px-4 bg-midnight-bg rounded-xl">
+              <div className="flex items-center gap-3">
+                <Globe className="w-4 h-4 text-midnight-text-muted" />
+                <div>
+                  <p className="text-sm font-medium text-midnight-text-primary">전체 사용자</p>
+                  <p className="text-xs text-midnight-text-muted">
+                    {globalDevMode ? '활성화됨 (모든 유저 적용)' : '비활성화'}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={handleGlobalDevModeToggle}
+                disabled={isGlobalLoading}
+                className="text-indigo-400 hover:text-indigo-300 transition-colors disabled:opacity-50"
+              >
+                {isGlobalLoading ? (
+                  <Spinner size="sm" />
+                ) : globalDevMode ? (
+                  <ToggleRight className="w-9 h-9" />
+                ) : (
+                  <ToggleLeft className="w-9 h-9 text-midnight-text-muted" />
+                )}
+              </button>
+            </div>
           </div>
         </section>
 
