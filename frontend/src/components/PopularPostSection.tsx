@@ -9,7 +9,7 @@ export const PopularPostSection = () => {
           어젯밤의 이야기
         </span>
         <h3 className="text-white text-base md:text-xl font-semibold">
-          전날 가장 많은 공명을 받은 글
+          전날 가장 많은 반응을 받은 글
         </h3>
       </div>
 
